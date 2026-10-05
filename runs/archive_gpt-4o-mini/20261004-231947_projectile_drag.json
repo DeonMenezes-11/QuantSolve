@@ -1,0 +1,52 @@
+{
+  "run_id": "20261004-231947_projectile_drag",
+  "task": "A projectile is launched from flat ground (y = 0) with speed 50 m/s. Gravity g = 9.81 m/s^2 acts downwards and air resistance is linear: the drag acceleration is -k*v (a vector opposite to the velocity) with k = 0.1 per second. Find the launch angle (degrees above the horizontal) that maximises the horizontal range (the x position when the projectile returns to y = 0) and that maximum range. Also report the range at 45 degrees for comparison. Use an accurate method (the analytic solution of the linear-drag equations, or a fine numerical integration with interpolation of the landing point). RESULT keys: best_angle_deg (1 decimal), max_range_m (2 decimals), range_at_45_m (2 decimals).",
+  "task_id": "projectile_drag",
+  "model": "gpt-4o-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:19:40",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "To find the launch angle that maximizes the horizontal range under linear drag, I will use numerical integration to simulate the projectile's motion for various angles. The equations of motion will be solved using small time steps, and the horizontal range will be calculated for each angle. I will assert that the maximum range found is greater than the range at 45 degrees and that the calculated ranges are consistent with the physics of projectile motion.",
+      "code": "import numpy as np\n\ng = 9.81  # gravity (m/s^2)\nk = 0.1   # drag coefficient (1/s)\nv0 = 50  # initial speed (m/s)\n\ndef range_with_angle(angle_deg):\n    angle_rad = np.radians(angle_deg)\n    vx = v0 * np.cos(angle_rad)  # initial horizontal velocity\n    vy = v0 * np.sin(angle_rad)  # initial vertical velocity\n    dt = 0.01  # time step\n    t = 0  # time\n    x = 0  # horizontal position\n    y = 0  # vertical position\n    while y >= 0:\n        ax = -k * vx  # acceleration in x (with drag)\n        ay = -g - k * vy  # acceleration in y (with drag)\n        vx += ax * dt  # update velocity in x\n        vy += ay * dt  # update velocity in y\n        x += vx * dt  # update position in x\n        y += vy * dt  # update position in y\n        t += dt\n    return x  # return the horizontal range\n\n# Calculate range at 45 degrees for comparison\nrange_at_45 = range_with_angle(45)\n\n# Find the angle that maximizes the range\nbest_angle = 0\nmax_range = 0\nfor angle in range(1, 90):  # check angles from 1 to 89 degrees\n    current_range = range_with_angle(angle)\n    if current_range > max_range:\n        max_range = current_range\n        best_angle = angle\n\n# Assertions to check correctness\nassert max_range > range_at_45, f'Max range {max_range} should be greater than range at 45 degrees {range_at_45}'\nassert best_angle > 0, f'Best angle should be positive, got {best_angle}'\n\nRESULT = {\n    'best_angle_deg': round(best_angle, 1),\n    'max_range_m': round(max_range, 2),\n    'range_at_45_m': round(range_at_45, 2)\n}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "best_angle_deg": 39,
+          "max_range_m": 171.77,
+          "range_at_45_m": 168.87
+        },
+        "duration_s": 0.104,
+        "exc_type": null,
+        "line": null,
+        "asserts": 2
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "best_angle_deg": 39,
+    "max_range_m": 171.77,
+    "range_at_45_m": 168.87
+  },
+  "final_answer": "The launch angle that maximizes the horizontal range of the projectile is 39.0 degrees above the horizontal. At this angle, the maximum range achieved is 171.77 meters. For comparison, the range at a launch angle of 45 degrees is 168.87 meters.",
+  "usage": {
+    "prompt_tokens": 1008,
+    "completion_tokens": 631,
+    "calls": 2,
+    "cost_usd": 0.00053,
+    "total_tokens": 1639
+  },
+  "duration_s": 6.57,
+  "path": "runs/archive_gpt-4o-mini/20261004-231947_projectile_drag.json"
+}

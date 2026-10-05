@@ -1,0 +1,52 @@
+{
+  "run_id": "20261004-231508_projectile_drag",
+  "task": "A projectile is launched from flat ground (y = 0) with speed 50 m/s. Gravity g = 9.81 m/s^2 acts downwards and air resistance is linear: the drag acceleration is -k*v (a vector opposite to the velocity) with k = 0.1 per second. Find the launch angle (degrees above the horizontal) that maximises the horizontal range (the x position when the projectile returns to y = 0) and that maximum range. Also report the range at 45 degrees for comparison. Use an accurate method (the analytic solution of the linear-drag equations, or a fine numerical integration with interpolation of the landing point). RESULT keys: best_angle_deg (1 decimal), max_range_m (2 decimals), range_at_45_m (2 decimals).",
+  "task_id": "projectile_drag",
+  "model": "gpt-4o-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:15:01",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "To find the launch angle that maximizes the horizontal range under linear air resistance, I will derive the equations of motion for the projectile and solve them analytically. The horizontal range can be computed using the formula that incorporates the effects of drag. I will also compute the range at 45 degrees for comparison. I will assert that the computed maximum range is greater than the range at 45 degrees and that the angle yielding the maximum range is indeed the angle that maximizes it.",
+      "code": "import math\nimport numpy as np\n\ng = 9.81  # gravity (m/s^2)\nk = 0.1   # drag coefficient (1/s)\nv0 = 50  # initial speed (m/s)\n\n# Function to compute range for a given angle\n\ndef compute_range(angle_deg):\n    angle_rad = math.radians(angle_deg)\n    v0x = v0 * math.cos(angle_rad)  # initial horizontal velocity\n    v0y = v0 * math.sin(angle_rad)  # initial vertical velocity\n    t_flight = (v0y + math.sqrt(v0y**2 + 2 * g * (v0y / k))) / (g / k)  # time of flight\n    range_x = v0x * t_flight * math.exp(-k * t_flight)  # range with drag\n    return range_x\n\n# Finding the angle that maximizes the range\nangles = np.linspace(0, 90, 1000)\nranges = [compute_range(angle) for angle in angles]\nmax_range = max(ranges)\nbest_angle = angles[np.argmax(ranges)]\n\n# Calculate range at 45 degrees\nrange_at_45 = compute_range(45)\n\n# Assertions to check correctness\nassert max_range > range_at_45, f'Max range {max_range} should be greater than range at 45 degrees {range_at_45}'\nassert best_angle == angles[np.argmax(ranges)], f'Best angle {best_angle} should correspond to max range index {np.argmax(ranges)}'\n\n# Prepare result\nRESULT = {\n    'best_angle_deg': round(best_angle, 1),\n    'max_range_m': round(max_range, 2),\n    'range_at_45_m': round(range_at_45, 2)\n}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "best_angle_deg": 37.8,
+          "max_range_m": 40.88,
+          "range_at_45_m": 39.89
+        },
+        "duration_s": 0.118,
+        "exc_type": null,
+        "line": null,
+        "asserts": 2
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "best_angle_deg": 37.8,
+    "max_range_m": 40.88,
+    "range_at_45_m": 39.89
+  },
+  "final_answer": "The launch angle that maximizes the horizontal range is 37.8 degrees above the horizontal. At this angle, the maximum range achieved by the projectile is 40.88 meters. For comparison, the range at a launch angle of 45 degrees is 39.89 meters.",
+  "usage": {
+    "prompt_tokens": 995,
+    "completion_tokens": 573,
+    "calls": 2,
+    "cost_usd": 0.000493,
+    "total_tokens": 1568
+  },
+  "duration_s": 6.83,
+  "path": "runs/archive_v1/20261004-231508_projectile_drag.json"
+}

@@ -1,0 +1,44 @@
+{
+  "run_id": "20261004-235201_constrained_strings",
+  "task": "Consider 8-character strings over an alphabet of 26 uppercase letters and 10 digits (36 symbols) in which no two adjacent characters are identical. Find: (a) count_mixed, the number of such strings that contain at least one letter and at least one digit; (b) count_three_digits, the number of such strings that contain exactly 3 digits; (c) prob_three_digits, the probability that a uniformly random 8-character string over the 36 symbols (with no restriction) has exactly 3 digits AND no two adjacent identical characters (6 decimals). RESULT keys: count_mixed, count_three_digits, prob_three_digits.",
+  "task_id": "constrained_strings",
+  "model": "gpt-4.1-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:51:53",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "We count total 8-length strings with no two identical adjacent chars using 36*35^7. For (a), use inclusion-exclusion: subtract strings with only letters (26*25^7) and only digits (10*9^7) from total. For (b), count strings with exactly 3 digits and 5 letters, no adjacent equal chars. We choose positions for digits (C(8,3)), arrange digits with no repeats (10*9*8 for first 3 digits, then 9^(number_of_digit_runs-1) for runs), similarly for letters (26*25^4 for 5 letters, then 25^(number_of_letter_runs-1)), and multiply. We must count the number of runs of digits and letters in the chosen pattern. For (c), probability is count_three_digits divided by total no-adjacent-equal strings. We assert total no-adjacent-equal strings equals sum over digits count (0 to 8) of count with exactly that many digits, and that count_mixed equals total minus only letters minus only digits. This confirms correctness.",
+      "code": "import math\nfrom math import comb\n\n# Constants\nlength = 8\nnum_letters = 26\nnum_digits = 10\nalphabet_size = num_letters + num_digits\n\n# Total strings with no two identical adjacent chars\n# First char: 36 choices, next 7 chars: each 35 choices\ntotal_no_adj = alphabet_size * (alphabet_size - 1) ** (length - 1)\n\n# Strings with only letters, no two identical adjacent chars\nonly_letters = num_letters * (num_letters - 1) ** (length - 1)\n\n# Strings with only digits, no two identical adjacent chars\nonly_digits = num_digits * (num_digits - 1) ** (length - 1)\n\n# (a) count_mixed: strings with at least one letter and at least one digit, no two identical adjacent chars\ncount_mixed = total_no_adj - only_letters - only_digits\n\n# (b) count_three_digits: strings with exactly 3 digits, 5 letters, no two identical adjacent chars\n# Approach:\n# 1. Choose positions of digits: comb(8,3)\n# 2. The pattern of digits and letters is fixed by these positions.\n# 3. Count number of digit runs and letter runs in this pattern.\n# 4. Number of ways to arrange digits with no two identical adjacent in digit positions:\n#    - For a run of length r, ways = num_digits * (num_digits - 1)^(r-1)\n#    - Multiply over all digit runs\n# 5. Similarly for letters in letter runs.\n\n# Function to count runs of consecutive True/False in a boolean list\n# True means digit, False means letter\n\ndef count_runs(pattern, val):\n    runs = 0\n    prev = None\n    for x in pattern:\n        if x == val:\n            if prev != val:\n                runs += 1\n        prev = x\n    return runs\n\n# We sum over all subsets of size 3 of positions 0..7\n# For each subset, build pattern, count runs, compute ways\n\nfrom itertools import combinations\n\ncount_three_digits = 0\nfor digit_positions in combinations(range(length), 3):\n    pattern = [False] * length\n    for pos in digit_positions:\n        pattern[pos] = True\n    digit_runs = count_runs(pattern, True)\n    letter_runs = count_runs(pattern, False)\n    # Ways to arrange digits in digit runs\n    ways_digits = num_digits * (num_digits - 1) ** (3 - digit_runs)\n    # Explanation: total digit chars = 3\n    # For each digit run, first char has num_digits choices, subsequent chars have num_digits-1 choices\n    # Total digit chars - digit_runs = number of subsequent chars in digit runs\n    # Similarly for letters (5 letters)\n    ways_letters = num_letters * (num_letters - 1) ** (5 - letter_runs)\n    ways = ways_digits * ways_letters\n    count_three_digits += ways\n\n# (c) prob_three_digits: probability that a uniformly random 8-char string over 36 symbols (no restriction) has exactly 3 digits AND no two adjacent identical chars\n# Total number of 8-char strings over 36 symbols (no restriction)\ntotal_unrestricted = alphabet_size ** length\n\n# Probability = count_three_digits / total_unrestricted\nprob_three_digits = count_three_digits / total_unrestricted\n\n# Round probability to 6 decimals\nprob_three_digits_rounded = round(prob_three_digits, 6)\n\n# Assertions\n# 1) total_no_adj == sum over k=0..8 of count strings with exactly k digits and no two identical adjacent chars\n# We compute this sum for k=0..8\n\ndef count_exact_k_digits(k):\n    # Similar to above for k digits and length-k letters\n    count_k = 0\n    for digit_positions in combinations(range(length), k):\n        pattern = [False] * length\n        for pos in digit_positions:\n            pattern[pos] = True\n        digit_runs = count_runs(pattern, True)\n        letter_runs = count_runs(pattern, False)\n        ways_digits = num_digits * (num_digits - 1) ** (k - digit_runs) if k > 0 else 1\n        ways_letters = num_letters * (num_letters - 1) ** (length - k - letter_runs) if (length - k) > 0 else 1\n        ways = ways_digits * ways_letters\n        count_k += ways\n    return count_k\n\nsum_all_k = 0\nfor k in range(length + 1):\n    sum_all_k += count_exact_k_digits(k)\n\n# Assert sum_all_k approx equals total_no_adj\nassert abs(sum_all_k - total_no_adj) < 1e-9, f\"Sum over k counts {sum_all_k} differs from total_no_adj {total_no_adj}\"\n\n# 2) count_mixed == total_no_adj - only_letters - only_digits\nassert count_mixed == total_no_adj - only_letters - only_digits, f\"count_mixed {count_mixed} != total_no_adj - only_letters - only_digits {total_no_adj - only_letters - only_digits}\"\n\nRESULT = {\n    'count_mixed': int(count_mixed),\n    'count_three_digits': int(count_three_digits),\n    'prob_three_digits': prob_three_digits_rounded\n}\n",
+      "observation": {
+        "ok": false,
+        "kind": "assertion",
+        "message": "AssertionError: Sum over k counts 386693632220 differs from total_no_adj 2316214687500",
+        "traceback": "Traceback (solution frames only):\n  line 102, in <module>\n    assert abs(sum_all_k - total_no_adj) < 1e-9, f\"Sum over k counts {sum_all_k} differs from total_no_adj {total_no_adj}\"\nAssertionError: Sum over k counts 386693632220 differs from total_no_adj 2316214687500",
+        "stdout": "",
+        "result": null,
+        "duration_s": 0.001,
+        "exc_type": "AssertionError",
+        "line": 102,
+        "asserts": 2
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": false,
+  "result": null,
+  "final_answer": "No verified answer after 1 attempt(s). Last failure (assertion): AssertionError: Sum over k counts 386693632220 differs from total_no_adj 2316214687500",
+  "usage": {
+    "prompt_tokens": 704,
+    "completion_tokens": 1435,
+    "calls": 1,
+    "cost_usd": 0.002578,
+    "total_tokens": 2139
+  },
+  "duration_s": 8.24,
+  "path": "runs/bench/20261004-235201_constrained_strings.json"
+}

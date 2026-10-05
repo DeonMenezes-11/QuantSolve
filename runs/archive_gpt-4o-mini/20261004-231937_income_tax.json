@@ -1,0 +1,44 @@
+{
+  "run_id": "20261004-231937_income_tax",
+  "task": "Compute Indian income tax under the new tax regime for FY 2024-25 for three salaried people with gross salaries A = Rs 7,20,000, B = Rs 7,90,000 and C = Rs 18,50,000. Use exactly these rules: (1) taxable income = gross salary - standard deduction of Rs 75,000. (2) Slab rates on taxable income: up to 3,00,000: 0%; 3,00,001-7,00,000: 5%; 7,00,001-10,00,000: 10%; 10,00,001-12,00,000: 15%; 12,00,001-15,00,000: 20%; above 15,00,000: 30%. (3) Rebate u/s 87A: if taxable income <= 7,00,000 the tax is zero. (4) Marginal relief: if taxable income exceeds 7,00,000, the tax before cess cannot exceed (taxable income - 7,00,000). (5) Add 4% health and education cess on the tax after rebate/relief. (6) No surcharge and no other deductions. Report each person's total tax including cess, rounded to the nearest rupee, and C's effective tax rate as a percentage of gross salary (2 decimals). RESULT keys: tax_a, tax_b, tax_c, effective_rate_c_pct.",
+  "task_id": "income_tax",
+  "model": "gpt-4o-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:19:31",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "To compute the income tax for each individual, I will first calculate the taxable income by subtracting the standard deduction from the gross salary. Then, I will apply the tax slab rates to determine the tax owed, considering the rebate and marginal relief where applicable. Finally, I will add the health and education cess to the tax. I will assert that the total tax calculated matches the expected values based on the defined rules and that the effective tax rate for C is correctly computed as a percentage of their gross salary.",
+      "code": "gross_salaries = {'A': 720000, 'B': 790000, 'C': 1850000}\nstandard_deduction = 75000\nrebate_limit = 700000\nmarginal_relief_limit = 700000\ncess_rate = 0.04\nslabs = [(300000, 0.0), (700000, 0.05), (1000000, 0.10), (1200000, 0.15), (1500000, 0.20), (float('inf'), 0.30)]\n\ndef calculate_tax(gross_salary):\n    taxable_income = gross_salary - standard_deduction\n    if taxable_income <= rebate_limit:\n        return 0\n    tax = 0\n    previous_limit = 0\n    for limit, rate in slabs:\n        if taxable_income > previous_limit:\n            taxable_amount = min(taxable_income, limit) - previous_limit\n            tax += taxable_amount * rate\n            previous_limit = limit\n    if taxable_income > marginal_relief_limit:\n        excess_tax = taxable_income - marginal_relief_limit\n        tax = min(tax, excess_tax)\n    cess = tax * cess_rate\n    total_tax = tax + cess\n    return round(total_tax)\n\ntax_a = calculate_tax(gross_salaries['A'])\ntax_b = calculate_tax(gross_salaries['B'])\ntax_c = calculate_tax(gross_salaries['C'])\neffective_rate_c_pct = round((tax_c / gross_salaries['C']) * 100, 2)\n\nassert tax_a == 0, f'Tax A: {tax_a} should be 0'\nassert tax_b == 25000, f'Tax B: {tax_b} should be 25000'\nassert tax_c == 298000, f'Tax C: {tax_c} should be 298000'\nassert effective_rate_c_pct == 16.06, f'Effective rate C: {effective_rate_c_pct} should be 16.06'\n\nRESULT = {'tax_a': tax_a, 'tax_b': tax_b, 'tax_c': tax_c, 'effective_rate_c_pct': effective_rate_c_pct}\n",
+      "observation": {
+        "ok": false,
+        "kind": "assertion",
+        "message": "AssertionError: Tax B: 15600 should be 25000",
+        "traceback": "Traceback (solution frames only):\n  line 32, in <module>\n    assert tax_b == 25000, f'Tax B: {tax_b} should be 25000'\nAssertionError: Tax B: 15600 should be 25000",
+        "stdout": "",
+        "result": null,
+        "duration_s": 0.001,
+        "exc_type": "AssertionError",
+        "line": 32,
+        "asserts": 4
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": false,
+  "result": null,
+  "final_answer": "No verified answer after 1 attempt(s). Last failure (assertion): AssertionError: Tax B: 15600 should be 25000",
+  "usage": {
+    "prompt_tokens": 886,
+    "completion_tokens": 603,
+    "calls": 1,
+    "cost_usd": 0.000495,
+    "total_tokens": 1489
+  },
+  "duration_s": 5.42,
+  "path": "runs/archive_gpt-4o-mini/20261004-231937_income_tax.json"
+}

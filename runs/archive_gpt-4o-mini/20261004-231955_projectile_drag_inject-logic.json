@@ -1,0 +1,52 @@
+{
+  "run_id": "20261004-231955_projectile_drag_inject-logic",
+  "task": "A projectile is launched from flat ground (y = 0) with speed 50 m/s. Gravity g = 9.81 m/s^2 acts downwards and air resistance is linear: the drag acceleration is -k*v (a vector opposite to the velocity) with k = 0.1 per second. Find the launch angle (degrees above the horizontal) that maximises the horizontal range (the x position when the projectile returns to y = 0) and that maximum range. Also report the range at 45 degrees for comparison. Use an accurate method (the analytic solution of the linear-drag equations, or a fine numerical integration with interpolation of the landing point). RESULT keys: best_angle_deg (1 decimal), max_range_m (2 decimals), range_at_45_m (2 decimals).",
+  "task_id": "projectile_drag",
+  "model": "gpt-4o-mini",
+  "inject": "logic",
+  "max_attempts": 5,
+  "created_at": "2026-10-04T23:19:47",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "To find the launch angle that maximizes the horizontal range under linear drag, I will use the equations of motion considering both gravity and drag. The horizontal and vertical motions will be modeled separately, and I will compute the range for various angles using numerical integration. I will assert that the maximum range occurs at the angle found and that the range at 45 degrees is computed correctly.",
+      "code": "import math\nimport numpy as np\ng = 9.81\nk = 0.1\nv0 = 50\n\ndef compute_range(angle_deg):\n    angle_rad = math.radians(angle_deg)\n    vx = v0 * math.cos(angle_rad)\n    vy = v0 * math.sin(angle_rad)\n    dt = 0.01\n    t = 0\n    x = 0\n    y = 0\n    while y >= 0:\n        ax = -k * vx\n        ay = -g + k * vy\n        vx += ax * dt\n        vy += ay * dt\n        x += vx * dt\n        y += vy * dt\n        t += dt\n    return x\nangles = np.linspace(0, 90, 100)\nranges = [compute_range(angle) for angle in angles]\nmax_range = max(ranges)\nbest_angle = angles[np.argmax(ranges)]\nrange_at_45 = compute_range(45)\nassert abs(max_range - compute_range(best_angle)) < 1e-05, f'Max range mismatch: {max_range} vs {compute_range(best_angle)}'\nassert abs(range_at_45 - compute_range(45)) < 1e-05, f'Range at 45 degrees mismatch: {range_at_45} vs {compute_range(45)}'\nRESULT = {'best_angle_deg': round(best_angle, 1), 'max_range_m': round(max_range, 2), 'range_at_45_m': round(range_at_45, 2)}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "best_angle_deg": 40.9,
+          "max_range_m": 201.73,
+          "range_at_45_m": 200.17
+        },
+        "duration_s": 0.108,
+        "exc_type": null,
+        "line": null,
+        "asserts": 2
+      },
+      "llm_code": "import math\nimport numpy as np\n\ng = 9.81  # gravity (m/s^2)\nk = 0.1   # drag coefficient (1/s)\nv0 = 50  # initial speed (m/s)\n\n# Function to compute range for a given angle\n\ndef compute_range(angle_deg):\n    angle_rad = math.radians(angle_deg)\n    vx = v0 * math.cos(angle_rad)  # initial horizontal velocity\n    vy = v0 * math.sin(angle_rad)  # initial vertical velocity\n    dt = 0.01  # time step\n    t = 0  # time\n    x = 0  # horizontal position\n    y = 0  # vertical position\n    while y >= 0:\n        ax = -k * vx  # acceleration in x due to drag\n        ay = -g - k * vy  # acceleration in y due to drag\n        vx += ax * dt  # update velocity in x\n        vy += ay * dt  # update velocity in y\n        x += vx * dt  # update position in x\n        y += vy * dt  # update position in y\n        t += dt\n    return x\n\n# Compute ranges for different angles\nangles = np.linspace(0, 90, 100)\nranges = [compute_range(angle) for angle in angles]\n\n# Find the angle that gives the maximum range\nmax_range = max(ranges)\nbest_angle = angles[np.argmax(ranges)]\n\n# Compute range at 45 degrees for comparison\nrange_at_45 = compute_range(45)\n\n# Assertions to verify correctness\nassert abs(max_range - compute_range(best_angle)) < 1e-5, f\"Max range mismatch: {max_range} vs {compute_range(best_angle)}\"\nassert abs(range_at_45 - compute_range(45)) < 1e-5, f\"Range at 45 degrees mismatch: {range_at_45} vs {compute_range(45)}\"\n\n# Prepare the result\nRESULT = {\n    'best_angle_deg': round(best_angle, 1),\n    'max_range_m': round(max_range, 2),\n    'range_at_45_m': round(range_at_45, 2)\n}\n",
+      "injected": "logic: flipped +/- inside a loop on line 17: `-g - k * vy` -> `-g + k * vy`",
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "best_angle_deg": 40.9,
+    "max_range_m": 201.73,
+    "range_at_45_m": 200.17
+  },
+  "final_answer": "The launch angle that maximizes the horizontal range is approximately 40.9 degrees above the horizontal. At this angle, the maximum range achieved by the projectile is 201.73 meters. For comparison, the range at a launch angle of 45 degrees is 200.17 meters.",
+  "usage": {
+    "prompt_tokens": 1010,
+    "completion_tokens": 643,
+    "calls": 2,
+    "cost_usd": 0.000537,
+    "total_tokens": 1653
+  },
+  "duration_s": 7.63,
+  "path": "runs/archive_gpt-4o-mini/20261004-231955_projectile_drag_inject-logic.json"
+}

@@ -1,0 +1,55 @@
+{
+  "run_id": "20261006-034245_eoq_discount",
+  "task": "A retailer sells 12,000 units per year at a constant rate. Placing an order costs Rs 1,500 and the annual holding cost per unit is 20% of the unit purchase price. The supplier gives all-units quantity discounts: order quantity below 1,000 units: Rs 100 per unit; 1,000 to 2,499 units: Rs 96 per unit; 2,500 units or more: Rs 94 per unit. Total annual cost = D*p + (D/Q)*S + (Q/2)*h*p, where D is annual demand, S the cost per order, h = 20% and p the unit price that applies to order quantity Q. Find: eoq_base, the classic EOQ at the undiscounted price of Rs 100 (2 decimals); best_order_qty, the integer order quantity Q that minimises total annual cost; min_total_cost, that minimum total annual cost (Rs, 2 decimals); orders_per_year at that Q (2 decimals). RESULT keys: eoq_base, best_order_qty, min_total_cost, orders_per_year.",
+  "task_id": "eoq_discount",
+  "model": "gpt-4.1-mini",
+  "inject": null,
+  "max_attempts": 5,
+  "created_at": "2026-10-06T03:42:34",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "I will first calculate the classic EOQ using the undiscounted price of Rs 100 with the formula EOQ = sqrt(2DS/(hp)). Then, I will evaluate the total annual cost for order quantities at the breakpoints of the discount schedule and the EOQ rounded to nearest integers around those breakpoints to find the best order quantity that minimizes total cost. I will assert that the EOQ calculated by the formula matches the EOQ computed by minimizing the cost at the undiscounted price, and that the total cost at the best order quantity is less than or equal to the cost at EOQ_base. I will also check that the orders per year times order quantity equals annual demand approximately.",
+      "code": "import math\n\n# Given data\nD = 12000  # annual demand units\nS = 1500   # ordering cost Rs\nh_rate = 0.20  # holding cost rate\n\n# Price tiers\nprice_tiers = [\n    (0, 999, 100),\n    (1000, 2499, 96),\n    (2500, float('inf'), 94)\n]\n\n# Classic EOQ at undiscounted price Rs 100\np_undiscounted = 100\nh_undiscounted = h_rate * p_undiscounted\nEOQ_base = math.sqrt(2 * D * S / h_undiscounted)\n\n# Function to get price for a given order quantity\ndef get_price(Q):\n    for low, high, price in price_tiers:\n        if low <= Q <= high:\n            return price\n    return price_tiers[-1][2]  # fallback\n\n# Total annual cost function\n# Total cost = D*p + (D/Q)*S + (Q/2)*h*p\n# h = 20% holding cost rate\n\ndef total_cost(Q):\n    p = get_price(Q)\n    h = h_rate * p\n    return D * p + (D / Q) * S + (Q / 2) * h\n\n# Candidate quantities to check:\n# EOQ_base rounded down and up\n# Breakpoints 999, 1000, 2499, 2500\n# Also check a few values around EOQ_base to be sure\ncandidates = set()\ncandidates.add(int(math.floor(EOQ_base)))\ncandidates.add(int(math.ceil(EOQ_base)))\ncandidates.add(999)\ncandidates.add(1000)\ncandidates.add(2499)\ncandidates.add(2500)\n\n# Add a few values around breakpoints and EOQ_base\nfor base in [EOQ_base, 999, 1000, 2499, 2500]:\n    for delta in [-2, -1, 0, 1, 2]:\n        val = int(round(base + delta))\n        if val > 0:\n            candidates.add(val)\n\n# Remove zero or negative\ncandidates = {q for q in candidates if q > 0}\n\n# Find best order quantity minimizing total cost\nbest_order_qty = min(candidates, key=total_cost)\nmin_total_cost = total_cost(best_order_qty)\norders_per_year = D / best_order_qty\n\n# Assertions\n# 1) EOQ_base computed by formula matches EOQ minimizing cost at undiscounted price\n# Compute EOQ by minimizing cost with fixed price 100\ndef total_cost_fixed_price(Q):\n    p = 100\n    h = h_rate * p\n    return D * p + (D / Q) * S + (Q / 2) * h\n\n# Find EOQ by minimizing total_cost_fixed_price over candidates near EOQ_base\ncandidates_fixed = set()\ncandidates_fixed.add(int(math.floor(EOQ_base)))\ncandidates_fixed.add(int(math.ceil(EOQ_base)))\ncandidates_fixed.add(int(round(EOQ_base)))\nfor delta in [-2, -1, 0, 1, 2]:\n    val = int(round(EOQ_base + delta))\n    if val > 0:\n        candidates_fixed.add(val)\nbest_fixed_qty = min(candidates_fixed, key=total_cost_fixed_price)\nmin_cost_fixed = total_cost_fixed_price(best_fixed_qty)\n\nassert abs(EOQ_base - best_fixed_qty) <= 2, f\"EOQ_base {EOQ_base} and best_fixed_qty {best_fixed_qty} differ by more than 2\"\n\n# 2) min_total_cost should be <= cost at EOQ_base rounded\ncost_at_eoq_base_rounded = total_cost(int(round(EOQ_base)))\nassert min_total_cost <= cost_at_eoq_base_rounded + 1e-6, f\"min_total_cost {min_total_cost} not <= cost at EOQ_base rounded {cost_at_eoq_base_rounded}\"\n\n# 3) orders_per_year * best_order_qty approx equals D\nassert abs(orders_per_year * best_order_qty - D) < 1e-6, f\"orders_per_year * best_order_qty {orders_per_year * best_order_qty} != D {D}\"\n\nRESULT = {\n    'eoq_base': round(EOQ_base, 2),\n    'best_order_qty': best_order_qty,\n    'min_total_cost': round(min_total_cost, 2),\n    'orders_per_year': round(orders_per_year, 2)\n}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "eoq_base": 1341.64,
+          "best_order_qty": 2500,
+          "min_total_cost": 1158700.0,
+          "orders_per_year": 4.8
+        },
+        "duration_s": 0.001,
+        "exc_type": null,
+        "line": null,
+        "asserts": 3
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "eoq_base": 1341.64,
+    "best_order_qty": 2500,
+    "min_total_cost": 1158700.0,
+    "orders_per_year": 4.8
+  },
+  "final_answer": "The classic Economic Order Quantity (EOQ) at the undiscounted price of Rs 100 is 1341.64 units. The best order quantity that minimizes the total annual cost is 2,500 units. At this order quantity, the minimum total annual cost is Rs 1,158,700. The number of orders placed per year at this quantity is 4.8.",
+  "usage": {
+    "prompt_tokens": 1157,
+    "completion_tokens": 1281,
+    "calls": 2,
+    "cost_usd": 0.002512,
+    "total_tokens": 2438
+  },
+  "duration_s": 11.33,
+  "path": "runs/20261006-034245_eoq_discount.json",
+  "stopped": false
+}

@@ -1,0 +1,2517 @@
+{
+  "meta": {
+    "created_at": "2026-10-04T23:22:39",
+    "model": "gpt-4o-mini",
+    "max_attempts": 5,
+    "timeout_s": 10.0,
+    "repeats": 2,
+    "tasks": [
+      "birthday",
+      "compound_varying",
+      "constrained_strings",
+      "eoq_discount",
+      "income_tax",
+      "loan_prepay",
+      "projectile_drag",
+      "sip_stepup"
+    ],
+    "crash_tasks": [
+      "loan_prepay",
+      "income_tax",
+      "eoq_discount"
+    ]
+  },
+  "summary": {
+    "one_shot": {
+      "runs": 16,
+      "correct": 1,
+      "accuracy": 0.062,
+      "verified": 5,
+      "verified_but_wrong": 4,
+      "avg_attempts": 1.0,
+      "healed": 0,
+      "inject_applied": 0,
+      "inject_detected": 0,
+      "inject_outcomes": {},
+      "failure_kinds": {
+        "assertion": 9,
+        "runtime": 1,
+        "syntax": 1
+      },
+      "tokens": 24117,
+      "cost_usd": 0.00818,
+      "avg_duration_s": 6.66,
+      "errors": 0
+    },
+    "quantsolve": {
+      "runs": 16,
+      "correct": 5,
+      "accuracy": 0.312,
+      "verified": 12,
+      "verified_but_wrong": 7,
+      "avg_attempts": 2.44,
+      "healed": 6,
+      "inject_applied": 0,
+      "inject_detected": 0,
+      "inject_outcomes": {},
+      "failure_kinds": {
+        "assertion": 17,
+        "blocked": 2,
+        "timeout": 1,
+        "syntax": 3,
+        "runtime": 4
+      },
+      "tokens": 116498,
+      "cost_usd": 0.02965,
+      "avg_duration_s": 18.8,
+      "errors": 0
+    },
+    "quantsolve+inject": {
+      "runs": 16,
+      "correct": 4,
+      "accuracy": 0.25,
+      "verified": 15,
+      "verified_but_wrong": 11,
+      "avg_attempts": 1.88,
+      "healed": 8,
+      "inject_applied": 15,
+      "inject_detected": 9,
+      "inject_outcomes": {
+        "original_failed": 6,
+        "caught": 2,
+        "silent": 5,
+        "benign": 2,
+        "not_applied": 1
+      },
+      "failure_kinds": {
+        "assertion": 12,
+        "timeout": 1,
+        "blocked": 1,
+        "runtime": 1
+      },
+      "tokens": 76686,
+      "cost_usd": 0.02033,
+      "avg_duration_s": 14.11,
+      "errors": 0
+    },
+    "quantsolve+crash": {
+      "runs": 6,
+      "correct": 2,
+      "accuracy": 0.333,
+      "verified": 4,
+      "verified_but_wrong": 2,
+      "avg_attempts": 3.5,
+      "healed": 4,
+      "inject_applied": 5,
+      "inject_detected": 6,
+      "inject_outcomes": {
+        "original_failed": 2,
+        "caught": 3,
+        "not_applied": 1
+      },
+      "failure_kinds": {
+        "runtime": 5,
+        "assertion": 8,
+        "syntax": 4
+      },
+      "tokens": 71670,
+      "cost_usd": 0.018,
+      "avg_duration_s": 28.5,
+      "errors": 0
+    }
+  },
+  "runs": [
+    {
+      "task_id": "loan_prepay",
+      "arm": "one_shot",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1415,
+      "cost_usd": 0.000478,
+      "duration_s": 7.82,
+      "run_id": "20261004-231918_loan_prepay",
+      "checks": {
+        "emi": {
+          "expected": 43391.16,
+          "got": null,
+          "ok": false
+        },
+        "months_with_prepayment": {
+          "expected": 168,
+          "got": null,
+          "ok": false
+        },
+        "months_saved": {
+          "expected": 72,
+          "got": null,
+          "ok": false
+        },
+        "interest_saved": {
+          "expected": 1855389.33,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "loan_prepay",
+      "arm": "quantsolve",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 1,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 5320,
+      "cost_usd": 0.001379,
+      "duration_s": 17.13,
+      "run_id": "20261004-231927_loan_prepay",
+      "checks": {
+        "emi": {
+          "expected": 43391.16,
+          "got": 43391.16,
+          "ok": true
+        },
+        "months_with_prepayment": {
+          "expected": 168,
+          "got": 167,
+          "ok": false
+        },
+        "months_saved": {
+          "expected": 72,
+          "got": 73,
+          "ok": false
+        },
+        "interest_saved": {
+          "expected": 1855389.33,
+          "got": 5401408.74,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "loan_prepay",
+      "arm": "quantsolve+inject",
+      "repeat": 1,
+      "inject": "logic",
+      "correct": true,
+      "keys_correct": 4,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 3,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion",
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 8644,
+      "cost_usd": 0.002106,
+      "duration_s": 21.96,
+      "run_id": "20261004-231932_loan_prepay_inject-logic",
+      "checks": {
+        "emi": {
+          "expected": 43391.16,
+          "got": 43391.16,
+          "ok": true
+        },
+        "months_with_prepayment": {
+          "expected": 168,
+          "got": 168,
+          "ok": true
+        },
+        "months_saved": {
+          "expected": 72,
+          "got": 72,
+          "ok": true
+        },
+        "interest_saved": {
+          "expected": 1855389.33,
+          "got": 1855389.33,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": "original_failed"
+    },
+    {
+      "task_id": "loan_prepay",
+      "arm": "quantsolve+crash",
+      "repeat": 1,
+      "inject": "crash",
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 5,
+      "first_kind": "runtime",
+      "failure_kinds": [
+        "runtime",
+        "assertion",
+        "assertion",
+        "assertion",
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 17804,
+      "cost_usd": 0.004292,
+      "duration_s": 40.19,
+      "run_id": "20261004-231950_loan_prepay_inject-crash",
+      "checks": {
+        "emi": {
+          "expected": 43391.16,
+          "got": null,
+          "ok": false
+        },
+        "months_with_prepayment": {
+          "expected": 168,
+          "got": null,
+          "ok": false
+        },
+        "months_saved": {
+          "expected": 72,
+          "got": null,
+          "ok": false
+        },
+        "interest_saved": {
+          "expected": 1855389.33,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "original_failed"
+    },
+    {
+      "task_id": "sip_stepup",
+      "arm": "one_shot",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1336,
+      "cost_usd": 0.000441,
+      "duration_s": 5.72,
+      "run_id": "20261004-231924_sip_stepup",
+      "checks": {
+        "total_invested": {
+          "expected": 3812698,
+          "got": null,
+          "ok": false
+        },
+        "future_value": {
+          "expected": 8683849,
+          "got": null,
+          "ok": false
+        },
+        "wealth_gained": {
+          "expected": 4871152,
+          "got": null,
+          "ok": false
+        },
+        "fv_without_stepup": {
+          "expected": 5045760,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "sip_stepup",
+      "arm": "quantsolve",
+      "repeat": 1,
+      "inject": null,
+      "correct": true,
+      "keys_correct": 4,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1826,
+      "cost_usd": 0.000577,
+      "duration_s": 7.54,
+      "run_id": "20261004-231931_sip_stepup",
+      "checks": {
+        "total_invested": {
+          "expected": 3812698,
+          "got": 3812698,
+          "ok": true
+        },
+        "future_value": {
+          "expected": 8683849,
+          "got": 8683849,
+          "ok": true
+        },
+        "wealth_gained": {
+          "expected": 4871152,
+          "got": 4871152,
+          "ok": true
+        },
+        "fv_without_stepup": {
+          "expected": 5045760,
+          "got": 5045760,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "sip_stepup",
+      "arm": "quantsolve+inject",
+      "repeat": 1,
+      "inject": "logic",
+      "correct": true,
+      "keys_correct": 4,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 4969,
+      "cost_usd": 0.001272,
+      "duration_s": 13.18,
+      "run_id": "20261004-231940_sip_stepup_inject-logic",
+      "checks": {
+        "total_invested": {
+          "expected": 3812698,
+          "got": 3812698,
+          "ok": true
+        },
+        "future_value": {
+          "expected": 8683849,
+          "got": 8683849,
+          "ok": true
+        },
+        "wealth_gained": {
+          "expected": 4871152,
+          "got": 4871152,
+          "ok": true
+        },
+        "fv_without_stepup": {
+          "expected": 5045760,
+          "got": 5045760,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": "caught"
+    },
+    {
+      "task_id": "income_tax",
+      "arm": "one_shot",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1489,
+      "cost_usd": 0.000495,
+      "duration_s": 5.42,
+      "run_id": "20261004-231937_income_tax",
+      "checks": {
+        "tax_a": {
+          "expected": 0,
+          "got": null,
+          "ok": false
+        },
+        "tax_b": {
+          "expected": 15600,
+          "got": null,
+          "ok": false
+        },
+        "tax_c": {
+          "expected": 231400,
+          "got": null,
+          "ok": false
+        },
+        "effective_rate_c_pct": {
+          "expected": 12.51,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "income_tax",
+      "arm": "quantsolve",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 1,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 2055,
+      "cost_usd": 0.000643,
+      "duration_s": 7.45,
+      "run_id": "20261004-231940_income_tax",
+      "checks": {
+        "tax_a": {
+          "expected": 0,
+          "got": 0,
+          "ok": true
+        },
+        "tax_b": {
+          "expected": 15600,
+          "got": 6760,
+          "ok": false
+        },
+        "tax_c": {
+          "expected": 231400,
+          "got": 0,
+          "ok": false
+        },
+        "effective_rate_c_pct": {
+          "expected": 12.51,
+          "got": 0.0,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "income_tax",
+      "arm": "quantsolve+inject",
+      "repeat": 1,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 1,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": true,
+      "inject_detected": false,
+      "tokens": 2013,
+      "cost_usd": 0.000617,
+      "duration_s": 6.98,
+      "run_id": "20261004-231944_income_tax_inject-logic",
+      "checks": {
+        "tax_a": {
+          "expected": 0,
+          "got": 0,
+          "ok": true
+        },
+        "tax_b": {
+          "expected": 15600,
+          "got": 183560,
+          "ok": false
+        },
+        "tax_c": {
+          "expected": 231400,
+          "got": 1037400,
+          "ok": false
+        },
+        "effective_rate_c_pct": {
+          "expected": 12.51,
+          "got": 56.08,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "silent"
+    },
+    {
+      "task_id": "income_tax",
+      "arm": "quantsolve+crash",
+      "repeat": 1,
+      "inject": "crash",
+      "correct": true,
+      "keys_correct": 4,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "runtime",
+      "failure_kinds": [
+        "runtime"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 5625,
+      "cost_usd": 0.001446,
+      "duration_s": 14.75,
+      "run_id": "20261004-231954_income_tax_inject-crash",
+      "checks": {
+        "tax_a": {
+          "expected": 0,
+          "got": 0,
+          "ok": true
+        },
+        "tax_b": {
+          "expected": 15600,
+          "got": 15600,
+          "ok": true
+        },
+        "tax_c": {
+          "expected": 231400,
+          "got": 231400,
+          "ok": true
+        },
+        "effective_rate_c_pct": {
+          "expected": 12.51,
+          "got": 12.51,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": "caught"
+    },
+    {
+      "task_id": "projectile_drag",
+      "arm": "one_shot",
+      "repeat": 1,
+      "inject": null,
+      "correct": true,
+      "keys_correct": 3,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1639,
+      "cost_usd": 0.00053,
+      "duration_s": 6.57,
+      "run_id": "20261004-231947_projectile_drag",
+      "checks": {
+        "best_angle_deg": {
+          "expected": 39.4,
+          "got": 39,
+          "ok": true
+        },
+        "max_range_m": {
+          "expected": 172.07,
+          "got": 171.77,
+          "ok": true
+        },
+        "range_at_45_m": {
+          "expected": 169.12,
+          "got": 168.87,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "projectile_drag",
+      "arm": "quantsolve",
+      "repeat": 1,
+      "inject": null,
+      "correct": true,
+      "keys_correct": 3,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1648,
+      "cost_usd": 0.000535,
+      "duration_s": 7.22,
+      "run_id": "20261004-231951_projectile_drag",
+      "checks": {
+        "best_angle_deg": {
+          "expected": 39.4,
+          "got": 39,
+          "ok": true
+        },
+        "max_range_m": {
+          "expected": 172.07,
+          "got": 171.77,
+          "ok": true
+        },
+        "range_at_45_m": {
+          "expected": 169.12,
+          "got": 168.87,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "projectile_drag",
+      "arm": "quantsolve+inject",
+      "repeat": 1,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": true,
+      "inject_detected": false,
+      "tokens": 1653,
+      "cost_usd": 0.000537,
+      "duration_s": 7.63,
+      "run_id": "20261004-231955_projectile_drag_inject-logic",
+      "checks": {
+        "best_angle_deg": {
+          "expected": 39.4,
+          "got": 40.9,
+          "ok": false
+        },
+        "max_range_m": {
+          "expected": 172.07,
+          "got": 201.73,
+          "ok": false
+        },
+        "range_at_45_m": {
+          "expected": 169.12,
+          "got": 200.17,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "silent"
+    },
+    {
+      "task_id": "birthday",
+      "arm": "one_shot",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 2,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1653,
+      "cost_usd": 0.000569,
+      "duration_s": 7.96,
+      "run_id": "20261004-231958_birthday",
+      "checks": {
+        "n_pair": {
+          "expected": 23,
+          "got": 23,
+          "ok": true
+        },
+        "p_pair": {
+          "expected": 0.507297,
+          "got": 0.507297,
+          "ok": true
+        },
+        "n_triple": {
+          "expected": 88,
+          "got": 107,
+          "ok": false
+        },
+        "p_triple": {
+          "expected": 0.511065,
+          "got": 0.505259,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "birthday",
+      "arm": "quantsolve",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 5,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion",
+        "assertion",
+        "assertion",
+        "assertion",
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 15145,
+      "cost_usd": 0.00358,
+      "duration_s": 32.4,
+      "run_id": "20261004-232023_birthday",
+      "checks": {
+        "n_pair": {
+          "expected": 23,
+          "got": null,
+          "ok": false
+        },
+        "p_pair": {
+          "expected": 0.507297,
+          "got": null,
+          "ok": false
+        },
+        "n_triple": {
+          "expected": 88,
+          "got": null,
+          "ok": false
+        },
+        "p_triple": {
+          "expected": 0.511065,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "birthday",
+      "arm": "quantsolve+inject",
+      "repeat": 1,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 1,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": true,
+      "inject_detected": false,
+      "tokens": 1598,
+      "cost_usd": 0.000536,
+      "duration_s": 7.16,
+      "run_id": "20261004-232001_birthday_inject-logic",
+      "checks": {
+        "n_pair": {
+          "expected": 23,
+          "got": 24,
+          "ok": false
+        },
+        "p_pair": {
+          "expected": 0.507297,
+          "got": 0.507297,
+          "ok": true
+        },
+        "n_triple": {
+          "expected": 88,
+          "got": 23,
+          "ok": false
+        },
+        "p_triple": {
+          "expected": 0.511065,
+          "got": 0.507297,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "silent"
+    },
+    {
+      "task_id": "eoq_discount",
+      "arm": "one_shot",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 2,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1833,
+      "cost_usd": 0.000579,
+      "duration_s": 7.38,
+      "run_id": "20261004-232002_eoq_discount",
+      "checks": {
+        "eoq_base": {
+          "expected": 1341.64,
+          "got": 1341.64,
+          "ok": true
+        },
+        "best_order_qty": {
+          "expected": 2500,
+          "got": 2501,
+          "ok": false
+        },
+        "min_total_cost": {
+          "expected": 1158700.0,
+          "got": 1158706.52,
+          "ok": false
+        },
+        "orders_per_year": {
+          "expected": 4.8,
+          "got": 4.8,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "eoq_discount",
+      "arm": "quantsolve",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 2,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 5539,
+      "cost_usd": 0.001459,
+      "duration_s": 15.03,
+      "run_id": "20261004-232013_eoq_discount",
+      "checks": {
+        "eoq_base": {
+          "expected": 1341.64,
+          "got": 1341.64,
+          "ok": true
+        },
+        "best_order_qty": {
+          "expected": 2500,
+          "got": 2501,
+          "ok": false
+        },
+        "min_total_cost": {
+          "expected": 1158700.0,
+          "got": 1158706.52,
+          "ok": false
+        },
+        "orders_per_year": {
+          "expected": 4.8,
+          "got": 4.8,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "eoq_discount",
+      "arm": "quantsolve+inject",
+      "repeat": 1,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 2,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 3,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion",
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 8713,
+      "cost_usd": 0.002166,
+      "duration_s": 21.31,
+      "run_id": "20261004-232023_eoq_discount_inject-logic",
+      "checks": {
+        "eoq_base": {
+          "expected": 1341.64,
+          "got": 1341.64,
+          "ok": true
+        },
+        "best_order_qty": {
+          "expected": 2500,
+          "got": 2501,
+          "ok": false
+        },
+        "min_total_cost": {
+          "expected": 1158700.0,
+          "got": 1158706.52,
+          "ok": false
+        },
+        "orders_per_year": {
+          "expected": 4.8,
+          "got": 4.8,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": "original_failed"
+    },
+    {
+      "task_id": "eoq_discount",
+      "arm": "quantsolve+crash",
+      "repeat": 1,
+      "inject": "crash",
+      "correct": false,
+      "keys_correct": 2,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 5,
+      "first_kind": "runtime",
+      "failure_kinds": [
+        "runtime",
+        "assertion",
+        "assertion",
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 16768,
+      "cost_usd": 0.003993,
+      "duration_s": 36.16,
+      "run_id": "20261004-232038_eoq_discount_inject-crash",
+      "checks": {
+        "eoq_base": {
+          "expected": 1341.64,
+          "got": 1341.64,
+          "ok": true
+        },
+        "best_order_qty": {
+          "expected": 2500,
+          "got": 2501,
+          "ok": false
+        },
+        "min_total_cost": {
+          "expected": 1158700.0,
+          "got": 1158706.52,
+          "ok": false
+        },
+        "orders_per_year": {
+          "expected": 4.8,
+          "got": 4.8,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": "original_failed"
+    },
+    {
+      "task_id": "compound_varying",
+      "arm": "one_shot",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1622,
+      "cost_usd": 0.000611,
+      "duration_s": 7.64,
+      "run_id": "20261004-232021_compound_varying",
+      "checks": {
+        "final_value": {
+          "expected": 391962.57,
+          "got": null,
+          "ok": false
+        },
+        "total_interest": {
+          "expected": 91962.57,
+          "got": null,
+          "ok": false
+        },
+        "equivalent_rate_pct": {
+          "expected": 6.784,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "compound_varying",
+      "arm": "quantsolve",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": false,
+      "attempts": 5,
+      "first_kind": "blocked",
+      "failure_kinds": [
+        "blocked",
+        "timeout",
+        "syntax",
+        "assertion",
+        "syntax"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 18901,
+      "cost_usd": 0.004681,
+      "duration_s": 51.46,
+      "run_id": "20261004-232112_compound_varying",
+      "checks": {
+        "final_value": {
+          "expected": 391962.57,
+          "got": null,
+          "ok": false
+        },
+        "total_interest": {
+          "expected": 91962.57,
+          "got": null,
+          "ok": false
+        },
+        "equivalent_rate_pct": {
+          "expected": 6.784,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "compound_varying",
+      "arm": "quantsolve+inject",
+      "repeat": 1,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "timeout",
+      "failure_kinds": [
+        "timeout"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 5125,
+      "cost_usd": 0.001406,
+      "duration_s": 24.54,
+      "run_id": "20261004-232047_compound_varying_inject-logic",
+      "checks": {
+        "final_value": {
+          "expected": 391962.57,
+          "got": 387918.18,
+          "ok": false
+        },
+        "total_interest": {
+          "expected": 91962.57,
+          "got": 87918.18,
+          "ok": false
+        },
+        "equivalent_rate_pct": {
+          "expected": 6.784,
+          "got": 8.945,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "caught"
+    },
+    {
+      "task_id": "constrained_strings",
+      "arm": "one_shot",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "runtime",
+      "failure_kinds": [
+        "runtime"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1304,
+      "cost_usd": 0.000466,
+      "duration_s": 5.92,
+      "run_id": "20261004-232029_constrained_strings",
+      "checks": {
+        "count_mixed": {
+          "expected": 2157475451560,
+          "got": null,
+          "ok": false
+        },
+        "count_three_digits": {
+          "expected": 559462475000,
+          "got": null,
+          "ok": false
+        },
+        "prob_three_digits": {
+          "expected": 0.198313,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "constrained_strings",
+      "arm": "quantsolve",
+      "repeat": 1,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 1,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1722,
+      "cost_usd": 0.000607,
+      "duration_s": 8.51,
+      "run_id": "20261004-232038_constrained_strings",
+      "checks": {
+        "count_mixed": {
+          "expected": 2157475451560,
+          "got": 2157475451560,
+          "ok": true
+        },
+        "count_three_digits": {
+          "expected": 559462475000,
+          "got": 460687500000,
+          "ok": false
+        },
+        "prob_three_digits": {
+          "expected": 0.198313,
+          "got": 0.198897,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "constrained_strings",
+      "arm": "quantsolve+inject",
+      "repeat": 1,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 1,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 4497,
+      "cost_usd": 0.001256,
+      "duration_s": 13.79,
+      "run_id": "20261004-232051_constrained_strings_inject-logic",
+      "checks": {
+        "count_mixed": {
+          "expected": 2157475451560,
+          "got": 2157475451560,
+          "ok": true
+        },
+        "count_three_digits": {
+          "expected": 559462475000,
+          "got": 11517187500000,
+          "ok": false
+        },
+        "prob_three_digits": {
+          "expected": 0.198313,
+          "got": 4.082502,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "original_failed"
+    },
+    {
+      "task_id": "loan_prepay",
+      "arm": "one_shot",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1434,
+      "cost_usd": 0.00049,
+      "duration_s": 5.69,
+      "run_id": "20261004-232044_loan_prepay",
+      "checks": {
+        "emi": {
+          "expected": 43391.16,
+          "got": null,
+          "ok": false
+        },
+        "months_with_prepayment": {
+          "expected": 168,
+          "got": null,
+          "ok": false
+        },
+        "months_saved": {
+          "expected": 72,
+          "got": null,
+          "ok": false
+        },
+        "interest_saved": {
+          "expected": 1855389.33,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "loan_prepay",
+      "arm": "quantsolve",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 2,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 5314,
+      "cost_usd": 0.001384,
+      "duration_s": 13.02,
+      "run_id": "20261004-232057_loan_prepay",
+      "checks": {
+        "emi": {
+          "expected": 43391.16,
+          "got": 43391.16,
+          "ok": true
+        },
+        "months_with_prepayment": {
+          "expected": 168,
+          "got": 167,
+          "ok": false
+        },
+        "months_saved": {
+          "expected": 72,
+          "got": 73,
+          "ok": false
+        },
+        "interest_saved": {
+          "expected": 1855389.33,
+          "got": 1855474.89,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "loan_prepay",
+      "arm": "quantsolve+inject",
+      "repeat": 2,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 1,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 5461,
+      "cost_usd": 0.001469,
+      "duration_s": 14.92,
+      "run_id": "20261004-232102_loan_prepay_inject-logic",
+      "checks": {
+        "emi": {
+          "expected": 43391.16,
+          "got": 43391.16,
+          "ok": true
+        },
+        "months_with_prepayment": {
+          "expected": 168,
+          "got": 160,
+          "ok": false
+        },
+        "months_saved": {
+          "expected": 72,
+          "got": 80,
+          "ok": false
+        },
+        "interest_saved": {
+          "expected": 1855389.33,
+          "got": 2054818.76,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "original_failed"
+    },
+    {
+      "task_id": "loan_prepay",
+      "arm": "quantsolve+crash",
+      "repeat": 2,
+      "inject": "crash",
+      "correct": false,
+      "keys_correct": 3,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "runtime",
+      "failure_kinds": [
+        "runtime"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 5420,
+      "cost_usd": 0.001433,
+      "duration_s": 13.47,
+      "run_id": "20261004-232105_loan_prepay_inject-crash",
+      "checks": {
+        "emi": {
+          "expected": 43391.16,
+          "got": 43391.16,
+          "ok": true
+        },
+        "months_with_prepayment": {
+          "expected": 168,
+          "got": 168,
+          "ok": true
+        },
+        "months_saved": {
+          "expected": 72,
+          "got": 72,
+          "ok": true
+        },
+        "interest_saved": {
+          "expected": 1855389.33,
+          "got": 85.57,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "caught"
+    },
+    {
+      "task_id": "sip_stepup",
+      "arm": "one_shot",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1314,
+      "cost_usd": 0.000427,
+      "duration_s": 6.81,
+      "run_id": "20261004-232104_sip_stepup",
+      "checks": {
+        "total_invested": {
+          "expected": 3812698,
+          "got": null,
+          "ok": false
+        },
+        "future_value": {
+          "expected": 8683849,
+          "got": null,
+          "ok": false
+        },
+        "wealth_gained": {
+          "expected": 4871152,
+          "got": null,
+          "ok": false
+        },
+        "fv_without_stepup": {
+          "expected": 5045760,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "sip_stepup",
+      "arm": "quantsolve",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 5,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion",
+        "assertion",
+        "assertion",
+        "assertion",
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 16270,
+      "cost_usd": 0.003775,
+      "duration_s": 32.23,
+      "run_id": "20261004-232134_sip_stepup",
+      "checks": {
+        "total_invested": {
+          "expected": 3812698,
+          "got": null,
+          "ok": false
+        },
+        "future_value": {
+          "expected": 8683849,
+          "got": null,
+          "ok": false
+        },
+        "wealth_gained": {
+          "expected": 4871152,
+          "got": null,
+          "ok": false
+        },
+        "fv_without_stepup": {
+          "expected": 5045760,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "sip_stepup",
+      "arm": "quantsolve+inject",
+      "repeat": 2,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 5,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion",
+        "assertion",
+        "assertion",
+        "assertion",
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 16668,
+      "cost_usd": 0.0039,
+      "duration_s": 32.73,
+      "run_id": "20261004-232136_sip_stepup_inject-logic",
+      "checks": {
+        "total_invested": {
+          "expected": 3812698,
+          "got": null,
+          "ok": false
+        },
+        "future_value": {
+          "expected": 8683849,
+          "got": null,
+          "ok": false
+        },
+        "wealth_gained": {
+          "expected": 4871152,
+          "got": null,
+          "ok": false
+        },
+        "fv_without_stepup": {
+          "expected": 5045760,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "original_failed"
+    },
+    {
+      "task_id": "income_tax",
+      "arm": "one_shot",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "syntax",
+      "failure_kinds": [
+        "syntax"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1490,
+      "cost_usd": 0.000495,
+      "duration_s": 5.55,
+      "run_id": "20261004-232110_income_tax",
+      "checks": {
+        "tax_a": {
+          "expected": 0,
+          "got": null,
+          "ok": false
+        },
+        "tax_b": {
+          "expected": 15600,
+          "got": null,
+          "ok": false
+        },
+        "tax_c": {
+          "expected": 231400,
+          "got": null,
+          "ok": false
+        },
+        "effective_rate_c_pct": {
+          "expected": 12.51,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "income_tax",
+      "arm": "quantsolve",
+      "repeat": 2,
+      "inject": null,
+      "correct": true,
+      "keys_correct": 4,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 5746,
+      "cost_usd": 0.001481,
+      "duration_s": 14.06,
+      "run_id": "20261004-232125_income_tax",
+      "checks": {
+        "tax_a": {
+          "expected": 0,
+          "got": 0,
+          "ok": true
+        },
+        "tax_b": {
+          "expected": 15600,
+          "got": 15600,
+          "ok": true
+        },
+        "tax_c": {
+          "expected": 231400,
+          "got": 231400,
+          "ok": true
+        },
+        "effective_rate_c_pct": {
+          "expected": 12.51,
+          "got": 12.51,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "income_tax",
+      "arm": "quantsolve+inject",
+      "repeat": 2,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 2,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": true,
+      "inject_detected": false,
+      "tokens": 1985,
+      "cost_usd": 0.0006,
+      "duration_s": 7.04,
+      "run_id": "20261004-232119_income_tax_inject-logic",
+      "checks": {
+        "tax_a": {
+          "expected": 0,
+          "got": 0,
+          "ok": true
+        },
+        "tax_b": {
+          "expected": 15600,
+          "got": 15600,
+          "ok": true
+        },
+        "tax_c": {
+          "expected": 231400,
+          "got": 1118000,
+          "ok": false
+        },
+        "effective_rate_c_pct": {
+          "expected": 12.51,
+          "got": 60.43,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "silent"
+    },
+    {
+      "task_id": "income_tax",
+      "arm": "quantsolve+crash",
+      "repeat": 2,
+      "inject": "crash",
+      "correct": true,
+      "keys_correct": 4,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "runtime",
+      "failure_kinds": [
+        "runtime"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 8269,
+      "cost_usd": 0.002645,
+      "duration_s": 28.87,
+      "run_id": "20261004-232148_income_tax_inject-crash",
+      "checks": {
+        "tax_a": {
+          "expected": 0,
+          "got": 0,
+          "ok": true
+        },
+        "tax_b": {
+          "expected": 15600,
+          "got": 15600,
+          "ok": true
+        },
+        "tax_c": {
+          "expected": 231400,
+          "got": 231400,
+          "ok": true
+        },
+        "effective_rate_c_pct": {
+          "expected": 12.51,
+          "got": 12.51,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": "caught"
+    },
+    {
+      "task_id": "projectile_drag",
+      "arm": "one_shot",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1337,
+      "cost_usd": 0.000471,
+      "duration_s": 7.7,
+      "run_id": "20261004-232132_projectile_drag",
+      "checks": {
+        "best_angle_deg": {
+          "expected": 39.4,
+          "got": null,
+          "ok": false
+        },
+        "max_range_m": {
+          "expected": 172.07,
+          "got": null,
+          "ok": false
+        },
+        "range_at_45_m": {
+          "expected": 169.12,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "projectile_drag",
+      "arm": "quantsolve",
+      "repeat": 2,
+      "inject": null,
+      "correct": true,
+      "keys_correct": 3,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1680,
+      "cost_usd": 0.000554,
+      "duration_s": 7.22,
+      "run_id": "20261004-232139_projectile_drag",
+      "checks": {
+        "best_angle_deg": {
+          "expected": 39.4,
+          "got": 40,
+          "ok": true
+        },
+        "max_range_m": {
+          "expected": 172.07,
+          "got": 172.46,
+          "ok": true
+        },
+        "range_at_45_m": {
+          "expected": 169.12,
+          "got": 169.41,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "projectile_drag",
+      "arm": "quantsolve+inject",
+      "repeat": 2,
+      "inject": "logic",
+      "correct": true,
+      "keys_correct": 3,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": true,
+      "inject_detected": false,
+      "tokens": 1725,
+      "cost_usd": 0.000581,
+      "duration_s": 7.57,
+      "run_id": "20261004-232142_projectile_drag_inject-logic",
+      "checks": {
+        "best_angle_deg": {
+          "expected": 39.4,
+          "got": 39,
+          "ok": true
+        },
+        "max_range_m": {
+          "expected": 172.07,
+          "got": 171.77,
+          "ok": true
+        },
+        "range_at_45_m": {
+          "expected": 169.12,
+          "got": 168.87,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": "benign"
+    },
+    {
+      "task_id": "birthday",
+      "arm": "one_shot",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 2,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1614,
+      "cost_usd": 0.000546,
+      "duration_s": 7.26,
+      "run_id": "20261004-232144_birthday",
+      "checks": {
+        "n_pair": {
+          "expected": 23,
+          "got": 23,
+          "ok": true
+        },
+        "p_pair": {
+          "expected": 0.507297,
+          "got": 0.507297,
+          "ok": true
+        },
+        "n_triple": {
+          "expected": 88,
+          "got": 35,
+          "ok": false
+        },
+        "p_triple": {
+          "expected": 0.511065,
+          "got": 0.511802,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "birthday",
+      "arm": "quantsolve",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 2,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "runtime",
+      "failure_kinds": [
+        "runtime"
+      ],
+      "healed": true,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 5035,
+      "cost_usd": 0.001385,
+      "duration_s": 15.32,
+      "run_id": "20261004-232155_birthday",
+      "checks": {
+        "n_pair": {
+          "expected": 23,
+          "got": 23,
+          "ok": true
+        },
+        "p_pair": {
+          "expected": 0.507297,
+          "got": 0.507297,
+          "ok": true
+        },
+        "n_triple": {
+          "expected": 88,
+          "got": 3,
+          "ok": false
+        },
+        "p_triple": {
+          "expected": 0.511065,
+          "got": 0.983659,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "birthday",
+      "arm": "quantsolve+inject",
+      "repeat": 2,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 1,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": true,
+      "inject_detected": false,
+      "tokens": 1631,
+      "cost_usd": 0.000556,
+      "duration_s": 6.61,
+      "run_id": "20261004-232149_birthday_inject-logic",
+      "checks": {
+        "n_pair": {
+          "expected": 23,
+          "got": 24,
+          "ok": false
+        },
+        "p_pair": {
+          "expected": 0.507297,
+          "got": 0.507297,
+          "ok": true
+        },
+        "n_triple": {
+          "expected": 88,
+          "got": 23,
+          "ok": false
+        },
+        "p_triple": {
+          "expected": 0.511065,
+          "got": 0.507297,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "silent"
+    },
+    {
+      "task_id": "eoq_discount",
+      "arm": "one_shot",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1372,
+      "cost_usd": 0.000461,
+      "duration_s": 5.13,
+      "run_id": "20261004-232149_eoq_discount",
+      "checks": {
+        "eoq_base": {
+          "expected": 1341.64,
+          "got": null,
+          "ok": false
+        },
+        "best_order_qty": {
+          "expected": 2500,
+          "got": null,
+          "ok": false
+        },
+        "min_total_cost": {
+          "expected": 1158700.0,
+          "got": null,
+          "ok": false
+        },
+        "orders_per_year": {
+          "expected": 4.8,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "eoq_discount",
+      "arm": "quantsolve",
+      "repeat": 2,
+      "inject": null,
+      "correct": true,
+      "keys_correct": 4,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 3,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion",
+        "assertion"
+      ],
+      "healed": true,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 8927,
+      "cost_usd": 0.002182,
+      "duration_s": 19.7,
+      "run_id": "20261004-232208_eoq_discount",
+      "checks": {
+        "eoq_base": {
+          "expected": 1341.64,
+          "got": 1341.64,
+          "ok": true
+        },
+        "best_order_qty": {
+          "expected": 2500,
+          "got": 2500,
+          "ok": true
+        },
+        "min_total_cost": {
+          "expected": 1158700.0,
+          "got": 1158700.0,
+          "ok": true
+        },
+        "orders_per_year": {
+          "expected": 4.8,
+          "got": 4.8,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "eoq_discount",
+      "arm": "quantsolve+inject",
+      "repeat": 2,
+      "inject": "logic",
+      "correct": true,
+      "keys_correct": 4,
+      "keys_total": 4,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": true,
+      "inject_detected": false,
+      "tokens": 1700,
+      "cost_usd": 0.000499,
+      "duration_s": 6.74,
+      "run_id": "20261004-232155_eoq_discount_inject-logic",
+      "checks": {
+        "eoq_base": {
+          "expected": 1341.64,
+          "got": 1341.64,
+          "ok": true
+        },
+        "best_order_qty": {
+          "expected": 2500,
+          "got": 2500,
+          "ok": true
+        },
+        "min_total_cost": {
+          "expected": 1158700.0,
+          "got": 1158700.0,
+          "ok": true
+        },
+        "orders_per_year": {
+          "expected": 4.8,
+          "got": 4.8,
+          "ok": true
+        }
+      },
+      "error": "",
+      "inject_outcome": "benign"
+    },
+    {
+      "task_id": "eoq_discount",
+      "arm": "quantsolve+crash",
+      "repeat": 2,
+      "inject": "crash",
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 4,
+      "verified": false,
+      "attempts": 5,
+      "first_kind": "syntax",
+      "failure_kinds": [
+        "syntax",
+        "assertion",
+        "syntax",
+        "syntax",
+        "syntax"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": true,
+      "tokens": 17784,
+      "cost_usd": 0.004194,
+      "duration_s": 37.54,
+      "run_id": "20261004-232226_eoq_discount_inject-crash",
+      "checks": {
+        "eoq_base": {
+          "expected": 1341.64,
+          "got": null,
+          "ok": false
+        },
+        "best_order_qty": {
+          "expected": 2500,
+          "got": null,
+          "ok": false
+        },
+        "min_total_cost": {
+          "expected": 1158700.0,
+          "got": null,
+          "ok": false
+        },
+        "orders_per_year": {
+          "expected": 4.8,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "not_applied"
+    },
+    {
+      "task_id": "compound_varying",
+      "arm": "one_shot",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1992,
+      "cost_usd": 0.000678,
+      "duration_s": 8.67,
+      "run_id": "20261004-232203_compound_varying",
+      "checks": {
+        "final_value": {
+          "expected": 391962.57,
+          "got": 375109.61,
+          "ok": false
+        },
+        "total_interest": {
+          "expected": 91962.57,
+          "got": 75109.61,
+          "ok": false
+        },
+        "equivalent_rate_pct": {
+          "expected": 6.784,
+          "got": 7.732,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "compound_varying",
+      "arm": "quantsolve",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": false,
+      "attempts": 5,
+      "first_kind": "blocked",
+      "failure_kinds": [
+        "blocked",
+        "runtime",
+        "runtime",
+        "syntax",
+        "runtime"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 19709,
+      "cost_usd": 0.00486,
+      "duration_s": 43.19,
+      "run_id": "20261004-232239_compound_varying",
+      "checks": {
+        "final_value": {
+          "expected": 391962.57,
+          "got": null,
+          "ok": false
+        },
+        "total_interest": {
+          "expected": 91962.57,
+          "got": null,
+          "ok": false
+        },
+        "equivalent_rate_pct": {
+          "expected": 6.784,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "compound_varying",
+      "arm": "quantsolve+inject",
+      "repeat": 2,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "blocked",
+      "failure_kinds": [
+        "blocked"
+      ],
+      "healed": true,
+      "inject_applied": false,
+      "inject_detected": true,
+      "tokens": 6034,
+      "cost_usd": 0.001677,
+      "duration_s": 18.42,
+      "run_id": "20261004-232222_compound_varying_inject-logic",
+      "checks": {
+        "final_value": {
+          "expected": 391962.57,
+          "got": 387918.18,
+          "ok": false
+        },
+        "total_interest": {
+          "expected": 91962.57,
+          "got": 87918.18,
+          "ok": false
+        },
+        "equivalent_rate_pct": {
+          "expected": 6.784,
+          "got": 6.517,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "not_applied"
+    },
+    {
+      "task_id": "constrained_strings",
+      "arm": "one_shot",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": false,
+      "attempts": 1,
+      "first_kind": "assertion",
+      "failure_kinds": [
+        "assertion"
+      ],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1273,
+      "cost_usd": 0.000447,
+      "duration_s": 5.36,
+      "run_id": "20261004-232213_constrained_strings",
+      "checks": {
+        "count_mixed": {
+          "expected": 2157475451560,
+          "got": null,
+          "ok": false
+        },
+        "count_three_digits": {
+          "expected": 559462475000,
+          "got": null,
+          "ok": false
+        },
+        "prob_three_digits": {
+          "expected": 0.198313,
+          "got": null,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "constrained_strings",
+      "arm": "quantsolve",
+      "repeat": 2,
+      "inject": null,
+      "correct": false,
+      "keys_correct": 0,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 1,
+      "first_kind": "ok",
+      "failure_kinds": [],
+      "healed": false,
+      "inject_applied": false,
+      "inject_detected": false,
+      "tokens": 1661,
+      "cost_usd": 0.00057,
+      "duration_s": 9.26,
+      "run_id": "20261004-232223_constrained_strings",
+      "checks": {
+        "count_mixed": {
+          "expected": 2157475451560,
+          "got": 2541860488960,
+          "ok": false
+        },
+        "count_three_digits": {
+          "expected": 559462475000,
+          "got": 575789760000,
+          "ok": false
+        },
+        "prob_three_digits": {
+          "expected": 0.198313,
+          "got": 0.209932,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": null
+    },
+    {
+      "task_id": "constrained_strings",
+      "arm": "quantsolve+inject",
+      "repeat": 2,
+      "inject": "logic",
+      "correct": false,
+      "keys_correct": 1,
+      "keys_total": 3,
+      "verified": true,
+      "attempts": 2,
+      "first_kind": "runtime",
+      "failure_kinds": [
+        "runtime"
+      ],
+      "healed": true,
+      "inject_applied": true,
+      "inject_detected": true,
+      "tokens": 4270,
+      "cost_usd": 0.001151,
+      "duration_s": 15.12,
+      "run_id": "20261004-232237_constrained_strings_inject-logic",
+      "checks": {
+        "count_mixed": {
+          "expected": 2157475451560,
+          "got": 2157475451560,
+          "ok": true
+        },
+        "count_three_digits": {
+          "expected": 559462475000,
+          "got": 604904282226562500000,
+          "ok": false
+        },
+        "prob_three_digits": {
+          "expected": 0.198313,
+          "got": 214420672.029772,
+          "ok": false
+        }
+      },
+      "error": "",
+      "inject_outcome": "original_failed"
+    }
+  ]
+}

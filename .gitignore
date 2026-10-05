@@ -1,0 +1,10 @@
+.env
+__pycache__/
+.pytest_cache/
+.cache/
+*.pyc
+.DS_Store
+results/.pwned_marker
+paper/*.aux
+paper/*.log
+paper/*.out

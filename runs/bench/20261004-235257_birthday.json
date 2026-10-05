@@ -1,0 +1,44 @@
+{
+  "run_id": "20261004-235257_birthday",
+  "task": "Assume 365 equally likely birthdays (ignore leap years) and independent people. (a) Find the smallest group size n_pair for which the probability that at least two people share a birthday exceeds 0.5, and that probability p_pair (6 decimals). (b) Find the smallest group size n_triple for which the probability that at least three people share the same birthday exceeds 0.5, and that probability p_triple (6 decimals). Compute the probabilities exactly (combinatorics or dynamic programming, not simulation). RESULT keys: n_pair, p_pair, n_triple, p_triple.",
+  "task_id": "birthday",
+  "model": "gpt-4.1-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:52:36",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "For part (a), I use the classic birthday paradox formula: compute the probability that all birthdays are distinct and find the smallest n where 1 - P(all distinct) > 0.5. For part (b), I use a dynamic programming approach to count the number of ways to assign birthdays to n people such that no birthday is shared by 3 or more people, then subtract from total to get the probability of at least one triple. I assert that the probability of at least two sharing plus the probability of all distinct sums to 1 for part (a), and for part (b) I assert that the sum of probabilities of no triple and at least one triple is 1, and that the DP count matches a combinatorial count for small n.",
+      "code": "import math\nfrom math import comb\n\nDAYS = 365\n\n# Part (a): classic birthday problem\n# Probability all birthdays distinct for n people:\n# P_distinct = 365/365 * 364/365 * ... * (365 - n + 1)/365\n# Find smallest n where 1 - P_distinct > 0.5\n\ndef prob_all_distinct(n):\n    if n > DAYS:\n        return 0.0\n    prob = 1.0\n    for i in range(n):\n        prob *= (DAYS - i) / DAYS\n    return prob\n\nn_pair = 1\nwhile True:\n    p_distinct = prob_all_distinct(n_pair)\n    p_pair = 1 - p_distinct\n    if p_pair > 0.5:\n        break\n    n_pair += 1\n\n# Part (b): probability at least one triple birthday\n# We want P(at least one triple) = 1 - P(no triple)\n# P(no triple) = number of ways to assign birthdays to n people\n# with each birthday appearing at most twice / total ways (365^n)\n\n# We count number of ways to assign n people to 365 days with max 2 per day.\n# This is equivalent to counting the number of integer solutions to\n# sum_{i=1}^{365} x_i = n with x_i in {0,1,2}.\n# The number of ways to assign people to days with these counts is:\n# multinomial coefficient n! / (prod_i x_i!) * number of ways to choose which people get which birthdays\n# But since people are distinct and birthdays distinct, total ways = 365^n.\n# The count of assignments with no triple is sum over all vectors (x_i) with x_i in {0,1,2} and sum x_i = n of\n# n! / (prod_i x_i!) * number of ways to assign birthdays to days (which is 1 since days are fixed).\n# Actually, since days are distinct, the number of ways to assign the counts to days is the number of ways to choose which days have 2, which have 1, which have 0.\n\n# We can use a DP over days and number of people assigned so far, tracking how many people assigned.\n# At each day, we can assign 0,1, or 2 people (if enough remain).\n# The number of ways to assign k people to current day is comb(n_remaining, k) * ways for rest.\n\n# We'll implement DP: dp(day, people_assigned) = number of ways to assign people_assigned people over first day days with no triple.\n\nfrom functools import lru_cache\n\n@lru_cache(None)\ndef dp(day, people_assigned):\n    if day == DAYS:\n        return 1 if people_assigned == n_triple else 0\n    ways = 0\n    for k in range(3):  # 0,1,2 people assigned to this day\n        if people_assigned + k <= n_triple:\n            # number of ways to choose k people from remaining (n_triple - people_assigned)\n            # but we must assign distinct people, so we choose which k people go here\n            # The order of people does not matter in this counting since we count assignments\n            # Actually, we count ways to assign people to days, so we must multiply by comb(remaining, k)\n            ways += comb(n_triple - people_assigned, k) * dp(day + 1, people_assigned + k)\n    return ways\n\n# We want to find smallest n_triple where P(at least one triple) > 0.5\n# We'll try increasing n_triple from 1 upwards\n\nn_triple = 1\nwhile True:\n    # total ways = 365^n_triple\n    total_ways = DAYS ** n_triple\n    no_triple_ways = dp(0, 0)\n    p_no_triple = no_triple_ways / total_ways\n    p_triple = 1 - p_no_triple\n    if p_triple > 0.5:\n        break\n    n_triple += 1\n\n# Round probabilities to 6 decimals\np_pair_rounded = round(p_pair, 6)\np_triple_rounded = round(p_triple, 6)\n\n# Assertions\n# 1) For part (a), p_pair + p_distinct == 1\nassert abs(p_pair + p_distinct - 1) < 1e-12, f\"Sum prob distinct and pair = {p_pair + p_distinct}, expected 1\"\n\n# 2) For part (b), p_triple + p_no_triple == 1\nassert abs(p_triple + p_no_triple - 1) < 1e-12, f\"Sum prob triple and no triple = {p_triple + p_no_triple}, expected 1\"\n\n# 3) For small n_triple (e.g. n_triple=2), dp count matches comb(365,2)*2! + comb(365,1)*1! + comb(365,0)*0! (all assignments with max 2 per day)\n# Actually for n=2, no triple is always true, so dp(0,0) == 365^2\nif n_triple >= 2:\n    if n_triple == 2:\n        expected = DAYS ** 2\n        assert dp(0, 0) == expected, f\"DP count {dp(0,0)} != expected {expected} for n=2\"\n\nRESULT = {\n    'n_pair': n_pair,\n    'p_pair': p_pair_rounded,\n    'n_triple': n_triple,\n    'p_triple': p_triple_rounded\n}\n",
+      "observation": {
+        "ok": false,
+        "kind": "assertion",
+        "message": "AssertionError: DP count 365 != expected 133225 for n=2",
+        "traceback": "Traceback (solution frames only):\n  line 94, in <module>\n    assert dp(0, 0) == expected, f\"DP count {dp(0,0)} != expected {expected} for n=2\"\nAssertionError: DP count 365 != expected 133225 for n=2",
+        "stdout": "",
+        "result": null,
+        "duration_s": 0.001,
+        "exc_type": "AssertionError",
+        "line": 94,
+        "asserts": 3
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": false,
+  "result": null,
+  "final_answer": "No verified answer after 1 attempt(s). Last failure (assertion): AssertionError: DP count 365 != expected 133225 for n=2",
+  "usage": {
+    "prompt_tokens": 1396,
+    "completion_tokens": 3259,
+    "calls": 2,
+    "cost_usd": 0.005773,
+    "total_tokens": 4655
+  },
+  "duration_s": 21.02,
+  "path": "runs/bench/20261004-235257_birthday.json"
+}

@@ -1,0 +1,52 @@
+{
+  "run_id": "20261004-235236_projectile_drag_inject-logic",
+  "task": "A projectile is launched from flat ground (y = 0) with speed 50 m/s. Gravity g = 9.81 m/s^2 acts downwards and air resistance is linear: the drag acceleration is -k*v (a vector opposite to the velocity) with k = 0.1 per second. Find the launch angle (degrees above the horizontal) that maximises the horizontal range (the x position when the projectile returns to y = 0) and that maximum range. Also report the range at 45 degrees for comparison. Use an accurate method (the analytic solution of the linear-drag equations, or a fine numerical integration with interpolation of the landing point). RESULT keys: best_angle_deg (1 decimal), max_range_m (2 decimals), range_at_45_m (2 decimals).",
+  "task_id": "projectile_drag",
+  "model": "gpt-4.1-mini",
+  "inject": "logic",
+  "max_attempts": 5,
+  "created_at": "2026-10-04T23:52:29",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "I will solve the projectile motion with linear air resistance using the known analytic formulas for x(t) and y(t) with initial velocity components and drag coefficient k. The time of flight is found by numerically solving y(t) = 0 for t > 0 using a root-finding method (bisection). Then the range is x(t_flight). I will compute the range for angles from 0 to 90 degrees in fine steps, find the angle with max range, and also compute the range at 45 degrees. I will assert that the range at 0 degrees is zero and that the time of flight found by root-finding matches the time when y(t) crosses zero from positive to negative, ensuring consistency.",
+      "code": "import math\ng = 9.81\nk = 0.1\nv0 = 50.0\n\ndef x_t(t, v0x):\n    return v0x / k * (1 - math.exp(-k * t))\n\ndef y_t(t, v0y):\n    return (v0y + g / k) / k * (1 - math.exp(-k * t)) - g * t / k\n\ndef time_of_flight(v0x, v0y):\n    t_low = 0.0\n    t_high = 20.0\n    y_low = y_t(t_low, v0y)\n    y_high = y_t(t_high, v0y)\n    while y_high > 0:\n        t_high *= 2\n        y_high = y_t(t_high, v0y)\n    for _ in range(99):\n        t_mid = 0.5 * (t_low + t_high)\n        y_mid = y_t(t_mid, v0y)\n        if y_mid > 0:\n            t_low = t_mid\n        else:\n            t_high = t_mid\n    return 0.5 * (t_low + t_high)\n\ndef range_for_angle_deg(angle_deg):\n    angle_rad = math.radians(angle_deg)\n    v0x = v0 * math.cos(angle_rad)\n    v0y = v0 * math.sin(angle_rad)\n    t_flight = time_of_flight(v0x, v0y)\n    range_ = x_t(t_flight, v0x)\n    return (range_, t_flight)\nangles = [i * 0.1 for i in range(901)]\nranges = []\nfor angle in angles:\n    r, _ = range_for_angle_deg(angle)\n    ranges.append(r)\nmax_range = max(ranges)\nmax_index = ranges.index(max_range)\nbest_angle = angles[max_index]\nrange_45, t45 = range_for_angle_deg(45.0)\nrange_0, t0 = range_for_angle_deg(0.0)\nassert abs(range_0) < 1e-10, f'Range at 0 deg not zero: {range_0}'\nv0x_best = v0 * math.cos(math.radians(best_angle))\nv0y_best = v0 * math.sin(math.radians(best_angle))\nt_best = time_of_flight(v0x_best, v0y_best)\ny_at_t_best = y_t(t_best, v0y_best)\nassert abs(y_at_t_best) < 1e-08, f'y at flight time not zero: {y_at_t_best}'\nRESULT = {'best_angle_deg': round(best_angle, 1), 'max_range_m': round(max_range, 2), 'range_at_45_m': round(range_45, 2)}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "best_angle_deg": 39.4,
+          "max_range_m": 172.07,
+          "range_at_45_m": 169.12
+        },
+        "duration_s": 0.02,
+        "exc_type": null,
+        "line": null,
+        "asserts": 2
+      },
+      "llm_code": "import math\n\ng = 9.81\nk = 0.1\nv0 = 50.0\n\n# Analytic solution for projectile with linear drag:\n# Velocity components:\n# vx(t) = v0x * exp(-k*t)\n# vy(t) = (v0y + g/k) * exp(-k*t) - g/k\n# Positions:\n# x(t) = (v0x/k) * (1 - exp(-k*t))\n# y(t) = ((v0y + g/k)/k) * (1 - exp(-k*t)) - (g*t)/k\n\ndef x_t(t, v0x):\n    return (v0x/k) * (1 - math.exp(-k*t))\n\ndef y_t(t, v0y):\n    return ((v0y + g/k)/k) * (1 - math.exp(-k*t)) - (g*t)/k\n\ndef time_of_flight(v0x, v0y):\n    # Find t > 0 where y(t) = 0 using bisection\n    # y(0) = 0, y'(0) = v0y > 0 if angle > 0, so start with interval [0, tmax]\n    # tmax chosen large enough, say 20 s\n    t_low = 0.0\n    t_high = 20.0\n    y_low = y_t(t_low, v0y)\n    y_high = y_t(t_high, v0y)\n    # Ensure y_high < 0 for bisection\n    while y_high > 0:\n        t_high *= 2\n        y_high = y_t(t_high, v0y)\n\n    for _ in range(100):\n        t_mid = 0.5 * (t_low + t_high)\n        y_mid = y_t(t_mid, v0y)\n        if y_mid > 0:\n            t_low = t_mid\n        else:\n            t_high = t_mid\n    return 0.5 * (t_low + t_high)\n\n# Compute range for a given angle in degrees\n\ndef range_for_angle_deg(angle_deg):\n    angle_rad = math.radians(angle_deg)\n    v0x = v0 * math.cos(angle_rad)\n    v0y = v0 * math.sin(angle_rad)\n    t_flight = time_of_flight(v0x, v0y)\n    range_ = x_t(t_flight, v0x)\n    return range_, t_flight\n\n# Search for max range over angles 0 to 90 degrees with fine steps\nangles = [i * 0.1 for i in range(901)]\nranges = []\nfor angle in angles:\n    r, _ = range_for_angle_deg(angle)\n    ranges.append(r)\n\nmax_range = max(ranges)\nmax_index = ranges.index(max_range)\nbest_angle = angles[max_index]\n\nrange_45, t45 = range_for_angle_deg(45.0)\n\n# Assertions\n# 1) range at 0 degrees should be zero (or very close)\nrange_0, t0 = range_for_angle_deg(0.0)\nassert abs(range_0) < 1e-10, f\"Range at 0 deg not zero: {range_0}\"\n\n# 2) Check that y(t_flight) is close to zero for best angle\nv0x_best = v0 * math.cos(math.radians(best_angle))\nv0y_best = v0 * math.sin(math.radians(best_angle))\nt_best = time_of_flight(v0x_best, v0y_best)\ny_at_t_best = y_t(t_best, v0y_best)\nassert abs(y_at_t_best) < 1e-8, f\"y at flight time not zero: {y_at_t_best}\"\n\nRESULT = {\"best_angle_deg\": round(best_angle, 1), \"max_range_m\": round(max_range, 2), \"range_at_45_m\": round(range_45, 2)}\n",
+      "injected": "logic: off-by-one in range() on line 20: `range(100)` -> `range(99)`",
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "best_angle_deg": 39.4,
+    "max_range_m": 172.07,
+    "range_at_45_m": 169.12
+  },
+  "final_answer": "The launch angle that maximizes the horizontal range is 39.4 degrees above the horizontal. At this angle, the maximum range achieved is 172.07 meters. For comparison, the range at a 45-degree launch angle is slightly shorter, measuring 169.12 meters.",
+  "usage": {
+    "prompt_tokens": 1010,
+    "completion_tokens": 1132,
+    "calls": 2,
+    "cost_usd": 0.002215,
+    "total_tokens": 2142
+  },
+  "duration_s": 7.14,
+  "path": "runs/bench/20261004-235236_projectile_drag_inject-logic.json"
+}

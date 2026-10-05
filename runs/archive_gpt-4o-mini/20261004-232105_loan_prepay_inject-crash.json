@@ -1,0 +1,80 @@
+{
+  "run_id": "20261004-232105_loan_prepay_inject-crash",
+  "task": "A home loan of Rs 50,00,000 is taken at 8.5% annual interest, compounded monthly (monthly rate r = 8.5%/12), for 20 years (240 monthly EMIs). The EMI is fixed with the standard formula EMI = P*r*(1+r)^n / ((1+r)^n - 1) and is not rounded during the calculation. Each month, interest = outstanding balance * r and the rest of the EMI repays principal. At the end of every 12th month (right after that month's EMI) the borrower also prepays Rs 1,00,000 (or the remaining balance, if smaller), which reduces the outstanding principal; the EMI amount stays the same. When the balance plus that month's interest is less than one EMI, the final payment is just that amount and the loan closes. Compute: emi (Rs, 2 decimals); months_with_prepayment (number of monthly payments until the loan closes, counting the final partial payment); months_saved (240 minus that); interest_saved (total interest without prepayments minus total interest with prepayments, Rs, 2 decimals). RESULT keys: emi, months_with_prepayment, months_saved, interest_saved.",
+  "task_id": "loan_prepay",
+  "model": "gpt-4o-mini",
+  "inject": "crash",
+  "max_attempts": 5,
+  "created_at": "2026-10-04T23:20:51",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "I will calculate the EMI using the standard formula for fixed-rate loans. Then, I will simulate the loan repayment process month by month, accounting for the prepayment at the end of each year. I will assert that the total interest calculated through both the prepayment and non-prepayment scenarios matches, and that the total number of months with prepayment is less than or equal to 240.",
+      "code": "P = 5000000\nannual_rate = 0.085\nmonthly_rate = annual_raet / 12\nn = 240\nemi = P * monthly_rate * (1 + monthly_rate) ** n / ((1 + monthly_rate) ** n - 1)\noutstanding_balance = P\ntotal_interest_without_prepayment = 0\nmonths_with_prepayment = 0\nwhile outstanding_balance > 0:\n    interest = outstanding_balance * monthly_rate\n    total_interest_without_prepayment += interest\n    principal_repayment = emi - interest\n    outstanding_balance -= principal_repayment\n    months_with_prepayment += 1\n    if months_with_prepayment % 12 == 0:\n        prepayment = min(100000, outstanding_balance)\n        outstanding_balance -= prepayment\ninterest_with_prepayment = 0\noutstanding_balance = P\nmonths_with_prepayment_with_prepayment = 0\nwhile outstanding_balance > 0:\n    interest = outstanding_balance * monthly_rate\n    interest_with_prepayment += interest\n    principal_repayment = emi - interest\n    outstanding_balance -= principal_repayment\n    months_with_prepayment_with_prepayment += 1\n    if months_with_prepayment_with_prepayment % 12 == 0:\n        prepayment = min(100000, outstanding_balance)\n        outstanding_balance -= prepayment\n    if outstanding_balance + interest < emi:\n        months_with_prepayment_with_prepayment += 1\n        break\nmonths_saved = 240 - months_with_prepayment_with_prepayment\ninterest_saved = total_interest_without_prepayment - interest_with_prepayment\nassert abs(interest_saved - (total_interest_without_prepayment - interest_with_prepayment)) < 0.01, f'Interest saved mismatch: {interest_saved} vs {total_interest_without_prepayment - interest_with_prepayment}'\nassert months_with_prepayment_with_prepayment <= 240, f'Months with prepayment exceeds 240: {months_with_prepayment_with_prepayment}'\nRESULT = {'emi': round(emi, 2), 'months_with_prepayment': months_with_prepayment_with_prepayment, 'months_saved': months_saved, 'interest_saved': round(interest_saved, 2)}\n",
+      "observation": {
+        "ok": false,
+        "kind": "runtime",
+        "message": "NameError: name 'annual_raet' is not defined",
+        "traceback": "Traceback (solution frames only):\n  line 3, in <module>\n    monthly_rate = annual_raet / 12\nNameError: name 'annual_raet' is not defined. Did you mean: 'annual_rate'?",
+        "stdout": "",
+        "result": null,
+        "duration_s": 0.001,
+        "exc_type": "NameError",
+        "line": 3,
+        "asserts": 2
+      },
+      "llm_code": "P = 5000000\nannual_rate = 0.085\nmonthly_rate = annual_rate / 12\nn = 240\nemi = P * monthly_rate * (1 + monthly_rate) ** n / ((1 + monthly_rate) ** n - 1)\n\noutstanding_balance = P\ntotal_interest_without_prepayment = 0\nmonths_with_prepayment = 0\n\nwhile outstanding_balance > 0:\n    interest = outstanding_balance * monthly_rate\n    total_interest_without_prepayment += interest\n    principal_repayment = emi - interest\n    outstanding_balance -= principal_repayment\n    months_with_prepayment += 1\n\n    if months_with_prepayment % 12 == 0:\n        prepayment = min(100000, outstanding_balance)\n        outstanding_balance -= prepayment\n\ninterest_with_prepayment = 0\noutstanding_balance = P\nmonths_with_prepayment_with_prepayment = 0\n\nwhile outstanding_balance > 0:\n    interest = outstanding_balance * monthly_rate\n    interest_with_prepayment += interest\n    principal_repayment = emi - interest\n    outstanding_balance -= principal_repayment\n    months_with_prepayment_with_prepayment += 1\n\n    if months_with_prepayment_with_prepayment % 12 == 0:\n        prepayment = min(100000, outstanding_balance)\n        outstanding_balance -= prepayment\n\n    if outstanding_balance + interest < emi:\n        months_with_prepayment_with_prepayment += 1\n        break\n\nmonths_saved = 240 - months_with_prepayment_with_prepayment\ninterest_saved = total_interest_without_prepayment - interest_with_prepayment\n\nassert abs(interest_saved - (total_interest_without_prepayment - interest_with_prepayment)) < 1e-2, f\"Interest saved mismatch: {interest_saved} vs {total_interest_without_prepayment - interest_with_prepayment}\"\nassert months_with_prepayment_with_prepayment <= 240, f\"Months with prepayment exceeds 240: {months_with_prepayment_with_prepayment}\"\n\nRESULT = {\n    'emi': round(emi, 2),\n    'months_with_prepayment': months_with_prepayment_with_prepayment,\n    'months_saved': months_saved,\n    'interest_saved': round(interest_saved, 2)\n}\n",
+      "injected": "crash: renamed a use of `annual_rate` to `annual_raet` on line 3 (expect NameError)",
+      "reflection": {
+        "diagnosis": "The program failed due to a typo on line 3 where 'annual_raet' should be 'annual_rate', causing a NameError. This prevents the calculation of the monthly interest rate, leading to incorrect EMI and subsequent calculations.",
+        "reflection": "You need to be meticulous with variable names to avoid typos that can halt execution. Always double-check your variable definitions before using them in calculations.",
+        "next_plan": "Correct the typo on line 3 to use 'annual_rate' instead of 'annual_raet', and then re-test the program to ensure it calculates the EMI and other values correctly.",
+        "attempt": 1
+      },
+      "nudge": null
+    },
+    {
+      "number": 2,
+      "thought": "The previous program contained a typo where 'annual_raet' was used instead of 'annual_rate', causing a NameError. I corrected this typo to ensure the monthly interest rate is calculated correctly. The rest of the logic remains intact to compute the EMI, months with prepayment, months saved, and interest saved.",
+      "code": "P = 5000000\nannual_rate = 0.085\nmonthly_rate = annual_rate / 12\nn = 240\nemi = P * monthly_rate * (1 + monthly_rate) ** n / ((1 + monthly_rate) ** n - 1)\noutstanding_balance = P\ntotal_interest_without_prepayment = 0\nmonths_with_prepayment = 0\nwhile outstanding_balance > 0:\n    interest = outstanding_balance * monthly_rate\n    total_interest_without_prepayment += interest\n    principal_repayment = emi - interest\n    outstanding_balance -= principal_repayment\n    months_with_prepayment += 1\n    if months_with_prepayment % 12 == 0:\n        prepayment = min(100000, outstanding_balance)\n        outstanding_balance -= prepayment\ninterest_with_prepayment = 0\noutstanding_balance = P\nmonths_with_prepayment_with_prepayment = 0\nwhile outstanding_balance > 0:\n    interest = outstanding_balance * monthly_rate\n    interest_with_prepayment += interest\n    principal_repayment = emi - interest\n    outstanding_balance -= principal_repayment\n    months_with_prepayment_with_prepayment += 1\n    if months_with_prepayment_with_prepayment % 12 == 0:\n        prepayment = min(100000, outstanding_balance)\n        outstanding_balance -= prepayment\n    if outstanding_balance + interest < emi:\n        months_with_prepayment_with_prepayment += 1\n        break\nmonths_saved = 240 - months_with_prepayment_with_prepayment\ninterest_saved = total_interest_without_prepayment - interest_with_prepayment\nassert abs(interest_saved - (total_interest_without_prepayment - interest_with_prepayment)) < 0.01, f'Interest saved mismatch: {interest_saved} vs {total_interest_without_prepayment - interest_with_prepayment}'\nassert months_with_prepayment_with_prepayment <= 240, f'Months with prepayment exceeds 240: {months_with_prepayment_with_prepayment}'\nRESULT = {'emi': round(emi, 2), 'months_with_prepayment': months_with_prepayment_with_prepayment, 'months_saved': months_saved, 'interest_saved': round(interest_saved, 2)}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "emi": 43391.16,
+          "months_with_prepayment": 168,
+          "months_saved": 72,
+          "interest_saved": 85.57
+        },
+        "duration_s": 0.0,
+        "exc_type": null,
+        "line": null,
+        "asserts": 2
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "emi": 43391.16,
+    "months_with_prepayment": 168,
+    "months_saved": 72,
+    "interest_saved": 85.57
+  },
+  "final_answer": "The monthly EMI for the home loan is Rs 43,391.16. The borrower made a total of 168 monthly payments, including the final partial payment, which means they saved 72 months compared to the original loan term. Additionally, the total interest saved due to prepayments amounts to Rs 85.57.",
+  "usage": {
+    "prompt_tokens": 4043,
+    "completion_tokens": 1377,
+    "calls": 4,
+    "cost_usd": 0.001433,
+    "total_tokens": 5420
+  },
+  "duration_s": 13.47,
+  "path": "runs/archive_gpt-4o-mini/20261004-232105_loan_prepay_inject-crash.json"
+}

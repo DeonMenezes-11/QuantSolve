@@ -1,0 +1,54 @@
+{
+  "run_id": "20261004-235113_income_tax",
+  "task": "Compute Indian income tax under the new tax regime for FY 2024-25 for three salaried people with gross salaries A = Rs 7,20,000, B = Rs 7,90,000 and C = Rs 18,50,000. Use exactly these rules: (1) taxable income = gross salary - standard deduction of Rs 75,000. (2) Slab rates on taxable income: up to 3,00,000: 0%; 3,00,001-7,00,000: 5%; 7,00,001-10,00,000: 10%; 10,00,001-12,00,000: 15%; 12,00,001-15,00,000: 20%; above 15,00,000: 30%. (3) Rebate u/s 87A: if taxable income <= 7,00,000 the tax is zero. (4) Marginal relief: if taxable income exceeds 7,00,000, the tax before cess cannot exceed (taxable income - 7,00,000). (5) Add 4% health and education cess on the tax after rebate/relief. (6) No surcharge and no other deductions. Report each person's total tax including cess, rounded to the nearest rupee, and C's effective tax rate as a percentage of gross salary (2 decimals). RESULT keys: tax_a, tax_b, tax_c, effective_rate_c_pct.",
+  "task_id": "income_tax",
+  "model": "gpt-4.1-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:51:05",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "I will first compute taxable income by subtracting the standard deduction from gross salary. Then, I will calculate tax before cess using the slab rates. Next, I will apply rebate u/s 87A if taxable income <= 700000, setting tax to zero. For taxable income > 700000, I will apply marginal relief so that tax before cess does not exceed taxable income - 700000. Then, I will add 4% cess on the tax after rebate/relief. Finally, I will round the taxes and compute C's effective tax rate as percentage of gross salary. I will assert that tax after rebate/relief does not exceed taxable income - 700000 for incomes above 700000, and that rebate sets tax to zero for incomes <= 700000.",
+      "code": "def compute_tax(gross_salary):\n    standard_deduction = 75000\n    taxable_income = gross_salary - standard_deduction\n    # Slab limits and rates\n    slabs = [300000, 700000, 1000000, 1200000, 1500000]\n    rates = [0.0, 0.05, 0.10, 0.15, 0.20, 0.30]\n    # Compute tax before rebate and relief\n    tax = 0.0\n    remaining = taxable_income\n    prev_limit = 0\n    for i, limit in enumerate(slabs):\n        if taxable_income > limit:\n            slab_income = limit - prev_limit\n        else:\n            slab_income = max(0, taxable_income - prev_limit)\n        tax += slab_income * rates[i]\n        prev_limit = limit\n        if taxable_income <= limit:\n            break\n    else:\n        # Income above highest slab\n        if taxable_income > slabs[-1]:\n            tax += (taxable_income - slabs[-1]) * rates[-1]\n    # Apply rebate u/s 87A\n    if taxable_income <= 700000:\n        tax = 0.0\n    else:\n        # Marginal relief: tax before cess cannot exceed taxable_income - 700000\n        max_tax = taxable_income - 700000\n        if tax > max_tax:\n            tax = max_tax\n    # Add 4% cess\n    tax_with_cess = tax * 1.04\n    return taxable_income, tax, tax_with_cess\n\ngross_a = 720000\ngross_b = 790000\ngross_c = 1850000\n\n# Compute for A\ntaxable_a, tax_before_cess_a, tax_a = compute_tax(gross_a)\n# Compute for B\ntaxable_b, tax_before_cess_b, tax_b = compute_tax(gross_b)\n# Compute for C\ntaxable_c, tax_before_cess_c, tax_c = compute_tax(gross_c)\n\neffective_rate_c_pct = (tax_c / gross_c) * 100\n\n# Round results\ntax_a_rounded = round(tax_a)\ntax_b_rounded = round(tax_b)\ntax_c_rounded = round(tax_c)\neffective_rate_c_pct_rounded = round(effective_rate_c_pct, 2)\n\n# Assertions\n# 1. For taxable income <= 700000, tax before cess must be zero due to rebate\nassert taxable_a <= 700000 and abs(tax_before_cess_a) < 1e-6, f\"Tax before cess for A should be zero due to rebate but is {tax_before_cess_a}\"\nassert taxable_b > 700000 and tax_before_cess_b <= taxable_b - 700000 + 1e-6, f\"Tax before cess for B exceeds marginal relief limit: {tax_before_cess_b} > {taxable_b - 700000}\"\nassert taxable_c > 700000 and tax_before_cess_c <= taxable_c - 700000 + 1e-6, f\"Tax before cess for C exceeds marginal relief limit: {tax_before_cess_c} > {taxable_c - 700000}\"\n# 2. Check tax with cess is 4% more than tax before cess\nassert abs(tax_a - tax_before_cess_a * 1.04) < 1e-6, f\"Tax A with cess mismatch: {tax_a} vs {tax_before_cess_a * 1.04}\"\nassert abs(tax_b - tax_before_cess_b * 1.04) < 1e-6, f\"Tax B with cess mismatch: {tax_b} vs {tax_before_cess_b * 1.04}\"\nassert abs(tax_c - tax_before_cess_c * 1.04) < 1e-6, f\"Tax C with cess mismatch: {tax_c} vs {tax_before_cess_c * 1.04}\"\n\nRESULT = {\n    \"tax_a\": tax_a_rounded,\n    \"tax_b\": tax_b_rounded,\n    \"tax_c\": tax_c_rounded,\n    \"effective_rate_c_pct\": effective_rate_c_pct_rounded\n}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "tax_a": 0,
+          "tax_b": 15600,
+          "tax_c": 231400,
+          "effective_rate_c_pct": 12.51
+        },
+        "duration_s": 0.0,
+        "exc_type": null,
+        "line": null,
+        "asserts": 6
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "tax_a": 0,
+    "tax_b": 15600,
+    "tax_c": 231400,
+    "effective_rate_c_pct": 12.51
+  },
+  "final_answer": "For person A with a gross salary of Rs 7,20,000, the total tax including cess is Rs 0. Person B, earning Rs 7,90,000, has a total tax liability of Rs 15,600. Person C, with a gross salary of Rs 18,50,000, pays Rs 2,31,400 in total tax including cess. The effective tax rate for person C as a percentage of gross salary is 12.51%.",
+  "usage": {
+    "prompt_tokens": 1313,
+    "completion_tokens": 1218,
+    "calls": 2,
+    "cost_usd": 0.002474,
+    "total_tokens": 2531
+  },
+  "duration_s": 8.52,
+  "path": "runs/bench/20261004-235113_income_tax.json"
+}

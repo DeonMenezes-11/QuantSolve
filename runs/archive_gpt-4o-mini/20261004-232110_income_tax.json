@@ -1,0 +1,44 @@
+{
+  "run_id": "20261004-232110_income_tax",
+  "task": "Compute Indian income tax under the new tax regime for FY 2024-25 for three salaried people with gross salaries A = Rs 7,20,000, B = Rs 7,90,000 and C = Rs 18,50,000. Use exactly these rules: (1) taxable income = gross salary - standard deduction of Rs 75,000. (2) Slab rates on taxable income: up to 3,00,000: 0%; 3,00,001-7,00,000: 5%; 7,00,001-10,00,000: 10%; 10,00,001-12,00,000: 15%; 12,00,001-15,00,000: 20%; above 15,00,000: 30%. (3) Rebate u/s 87A: if taxable income <= 7,00,000 the tax is zero. (4) Marginal relief: if taxable income exceeds 7,00,000, the tax before cess cannot exceed (taxable income - 7,00,000). (5) Add 4% health and education cess on the tax after rebate/relief. (6) No surcharge and no other deductions. Report each person's total tax including cess, rounded to the nearest rupee, and C's effective tax rate as a percentage of gross salary (2 decimals). RESULT keys: tax_a, tax_b, tax_c, effective_rate_c_pct.",
+  "task_id": "income_tax",
+  "model": "gpt-4o-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:21:05",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "To compute the income tax for each individual, I will first calculate the taxable income by subtracting the standard deduction from the gross salary. Then, I will apply the slab rates to determine the tax owed, considering the rebate and marginal relief rules. Finally, I will add the health and education cess to the tax amount. I will assert that the total tax calculated matches the expected values derived from the slab rates and that the effective tax rate for individual C is correctly computed.",
+      "code": "gross_salaries = [720000, 790000, 1850000]\nstandard_deduction = 75000\nrebate_limit = 700000\nslabs = [(300000, 0.0), (700000, 0.05), (1000000, 0.10), (1200000, 0.15), (1500000, 0.20), (float('inf'), 0.30)]\n\ndef calculate_tax(gross_salary):\n    taxable_income = gross_salary - standard_deduction\n    if taxable_income <= rebate_limit:\n        return 0\n    tax = 0\n    previous_limit = 0\n    for limit, rate in slabs:\n        if taxable_income > previous_limit:\n            taxable_amount = min(taxable_income, limit) - previous_limit\n            tax += taxable_amount * rate\n            previous_limit = limit\n        else:\n            break\n    if taxable_income > rebate_limit:\n        marginal_relief = taxable_income - rebate_limit\n        if tax > marginal_relief:\n            tax = marginal_relief\n    cess = tax * 0.04\n    return round(tax + cess)\n\ntaxes = [calculate_tax(salary) for salary in gross_salaries]\neffective_rate_c = (taxes[2] / gross_salaries[2]) * 100\n\n# Assigning results\nRESULT = {\n    'tax_a': taxes[0],\n    'tax_b': taxes[1],\n    'tax_c': taxes[2],\n    'effective_rate_c_pct': round(effective_rate_c, 2)\n}\n\n# Assertions for validation\nassert taxes[0] == calculate_tax(720000), f'Tax A mismatch: {taxes[0]} != {calculate_tax(720000)}'\nassert taxes[1] == calculate_tax(790000), f'Tax B mismatch: {taxes[1]} != {calculate_tax(790000)}'\nassert taxes[2] == calculate_tax(1850000), f'Tax C mismatch: {taxes[2]} != {calculate_tax(1850000)}'\nassert 0 <= RESULT['effective_rate_c_pct'] <= 100, f'Effective rate C out of bounds: {RESULT[\n",
+      "observation": {
+        "ok": false,
+        "kind": "syntax",
+        "message": "SyntaxError: '[' was never closed (line 41)",
+        "traceback": "line 41\n    assert 0 <= RESULT['effective_rate_c_pct'] <= 100, f'Effective rate C out of bounds: {RESULT[\n                                                                                                ^\nSyntaxError: '[' was never closed",
+        "stdout": "",
+        "result": null,
+        "duration_s": 0.0,
+        "exc_type": "SyntaxError",
+        "line": 41,
+        "asserts": 0
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": false,
+  "result": null,
+  "final_answer": "No verified answer after 1 attempt(s). Last failure (syntax): SyntaxError: '[' was never closed (line 41)",
+  "usage": {
+    "prompt_tokens": 886,
+    "completion_tokens": 604,
+    "calls": 1,
+    "cost_usd": 0.000495,
+    "total_tokens": 1490
+  },
+  "duration_s": 5.55,
+  "path": "runs/archive_gpt-4o-mini/20261004-232110_income_tax.json"
+}

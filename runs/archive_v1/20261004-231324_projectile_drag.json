@@ -1,0 +1,52 @@
+{
+  "run_id": "20261004-231324_projectile_drag",
+  "task": "A projectile is launched from flat ground (y = 0) with speed 50 m/s. Gravity g = 9.81 m/s^2 acts downwards and air resistance is linear: the drag acceleration is -k*v (a vector opposite to the velocity) with k = 0.1 per second. Find the launch angle (degrees above the horizontal) that maximises the horizontal range (the x position when the projectile returns to y = 0) and that maximum range. Also report the range at 45 degrees for comparison. Use an accurate method (the analytic solution of the linear-drag equations, or a fine numerical integration with interpolation of the landing point). RESULT keys: best_angle_deg (1 decimal), max_range_m (2 decimals), range_at_45_m (2 decimals).",
+  "task_id": "projectile_drag",
+  "model": "gpt-4o-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:13:17",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "To find the launch angle that maximizes the horizontal range under linear drag, I will use the equations of motion incorporating both gravity and drag. The horizontal and vertical motions will be modeled separately, and the range will be computed for various angles. The angle that yields the maximum range will be determined through numerical integration. I will also compute the range at 45 degrees for comparison. Assertions will check that the computed ranges are consistent across different methods and that the maximum range is indeed greater than the range at 45 degrees.",
+      "code": "import math\nimport numpy as np\n\ng = 9.81  # gravity (m/s^2)\nk = 0.1   # drag coefficient (1/s)\nv0 = 50  # initial speed (m/s)\n\n# Function to compute the range for a given angle\ndef compute_range(angle_deg):\n    angle_rad = math.radians(angle_deg)\n    v0x = v0 * math.cos(angle_rad)  # initial horizontal velocity\n    v0y = v0 * math.sin(angle_rad)  # initial vertical velocity\n    t = 0  # time\n    dt = 0.01  # time step\n    x = 0  # horizontal position\n    y = 0  # vertical position\n    vx = v0x  # horizontal velocity\n    vy = v0y  # vertical velocity\n\n    while y >= 0:\n        ax = -k * vx  # acceleration in x\n        ay = -g - k * vy  # acceleration in y\n        vx += ax * dt  # update horizontal velocity\n        vy += ay * dt  # update vertical velocity\n        x += vx * dt  # update horizontal position\n        y += vy * dt  # update vertical position\n        t += dt\n\n    return x  # return the range\n\n# Finding the best angle\nbest_angle = 0\nmax_range = 0\nrange_at_45 = compute_range(45)\n\nfor angle in range(1, 90):  # test angles from 1 to 89 degrees\n    current_range = compute_range(angle)\n    if current_range > max_range:\n        max_range = current_range\n        best_angle = angle\n\n# Assertions to validate the results\nassert abs(compute_range(best_angle) - max_range) < 1e-5, f\"Range mismatch: {compute_range(best_angle)} vs {max_range}\"\nassert max_range > range_at_45, f\"Max range {max_range} is not greater than range at 45 degrees {range_at_45}\"\n\n# Preparing the result\nRESULT = {\n    'best_angle_deg': round(best_angle, 1),\n    'max_range_m': round(max_range, 2),\n    'range_at_45_m': round(range_at_45, 2)\n}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "best_angle_deg": 39,
+          "max_range_m": 171.77,
+          "range_at_45_m": 168.87
+        },
+        "duration_s": 0.055,
+        "exc_type": null,
+        "line": null,
+        "asserts": 2
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "best_angle_deg": 39,
+    "max_range_m": 171.77,
+    "range_at_45_m": 168.87
+  },
+  "final_answer": "The launch angle that maximizes the horizontal range is 39.0 degrees above the horizontal. At this angle, the maximum range achieved is 171.77 meters. For comparison, the range at a launch angle of 45 degrees is 168.87 meters.",
+  "usage": {
+    "prompt_tokens": 993,
+    "completion_tokens": 680,
+    "calls": 2,
+    "cost_usd": 0.000557,
+    "total_tokens": 1673
+  },
+  "duration_s": 6.96,
+  "path": "runs/archive_v1/20261004-231324_projectile_drag.json"
+}

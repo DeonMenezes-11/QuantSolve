@@ -1,0 +1,52 @@
+{
+  "run_id": "20261004-235154_compound_varying",
+  "task": "Rs 2,00,000 is invested on 1 Jan 2020. Further deposits of Rs 50,000 are made on 1 Jan 2022 and on 1 Jan 2024. The nominal annual rate and compounding change every calendar year: 2020: 6% compounded quarterly; 2021: 7.2% compounded monthly; 2022: 5.5% compounded daily (365 periods); 2023: 8% compounded annually; 2024: 6.5% compounded continuously. Each year's growth factor applies to the whole balance held during that year (treat every year as exactly one year; a deposit on 1 Jan earns that whole year's growth). Compute: final_value on 31 Dec 2024 (Rs, 2 decimals); total_interest = final_value minus total deposits (Rs, 2 decimals); equivalent_rate_pct, the single annual effective rate r (in %, 3 decimals) such that the same three deposits compounded annually at r would grow to the same final value (solve numerically). RESULT keys: final_value, total_interest, equivalent_rate_pct.",
+  "task_id": "compound_varying",
+  "model": "gpt-4.1-mini",
+  "inject": null,
+  "max_attempts": 5,
+  "created_at": "2026-10-04T23:51:44",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "I will compute the balance year by year applying the respective nominal rate and compounding frequency to the entire balance at the start of each year, adding deposits at the start of 2022 and 2024 before applying growth. For continuous compounding in 2024, I use exp(r). Then, total interest is final value minus sum of deposits. To find the equivalent annual effective rate r, I solve numerically for r in the equation that compounds each deposit annually to final value. I will assert that the final value computed by stepwise compounding equals the product of yearly growth factors applied to the initial principal plus deposits, and that total interest equals final value minus total deposits.",
+      "code": "import math\nfrom math import exp\n\ndef compound_factor(nominal_rate, periods_per_year):\n    return (1 + nominal_rate / periods_per_year) ** periods_per_year\n\ndef continuous_factor(rate):\n    return exp(rate)\n\n# Initial data\ninitial_principal = 200000.0\nadditional_deposits = {2022: 50000.0, 2024: 50000.0}\n\n# Yearly nominal rates and compounding frequencies\n# Format: year: (nominal_rate_decimal, compounding_periods_per_year or None for continuous)\nyear_data = {\n    2020: (0.06, 4),      # quarterly\n    2021: (0.072, 12),    # monthly\n    2022: (0.055, 365),   # daily\n    2023: (0.08, 1),      # annually\n    2024: (0.065, None)   # continuous\n}\n\n# Step 1: Compute balance at start of each year\n# Start 1 Jan 2020\nbalance = initial_principal\n\n# We will store balances at start of each year for checks\nbalances_start = {2020: balance}\n\n# For each year, add deposit if any, then apply growth factor\nfor year in range(2020, 2025):\n    if year in additional_deposits:\n        balance += additional_deposits[year]\n    nominal_rate, periods = year_data[year]\n    if periods is None:\n        # continuous compounding\n        growth_factor = continuous_factor(nominal_rate)\n    else:\n        growth_factor = compound_factor(nominal_rate, periods)\n    balance *= growth_factor\n    if year < 2024:\n        balances_start[year + 1] = balance\n\nfinal_value = balance\n\n# Total deposits\ntotal_deposits = initial_principal + sum(additional_deposits.values())\n\n# Total interest\ntotal_interest = final_value - total_deposits\n\n# Step 2: Find equivalent annual effective rate r (in decimal) such that\n# (initial_principal)*(1+r)^5 + 50000*(1+r)^3 + 50000*(1+r)^1 = final_value\n# Solve numerically using bisection\n\ndef f(r):\n    return (initial_principal * (1 + r) ** 5 +\n            additional_deposits.get(2022, 0) * (1 + r) ** 3 +\n            additional_deposits.get(2024, 0) * (1 + r) ** 1) - final_value\n\n# Bisection method\nlow, high = 0.0, 1.0  # 0% to 100% annual effective rate\nfor _ in range(100):\n    mid = (low + high) / 2\n    val = f(mid)\n    if val > 0:\n        high = mid\n    else:\n        low = mid\n\nequivalent_rate = (low + high) / 2\n\n# Assertions\n# 1) Check final_value equals product of yearly growth factors applied to initial principal plus deposits added at start of year\n# Compute product of growth factors\nproduct_growth = 1.0\nfor year in range(2020, 2025):\n    nominal_rate, periods = year_data[year]\n    if periods is None:\n        gf = continuous_factor(nominal_rate)\n    else:\n        gf = compound_factor(nominal_rate, periods)\n    product_growth *= gf\n\n# Compute final value by applying product_growth to initial principal plus deposits compounded similarly\n# But deposits are added at different years, so we compute their growth separately\n# Deposit at 2020 grows 5 years\ndep0_growth = (1 + equivalent_rate) ** 5\n# Deposit at 2022 grows 3 years\ndep1_growth = (1 + equivalent_rate) ** 3\n# Deposit at 2024 grows 1 year\ndep2_growth = (1 + equivalent_rate) ** 1\n\n# Check sum of principal repaid equals total deposits\nassert abs(total_deposits - (initial_principal + sum(additional_deposits.values()))) < 1e-6, f\"Total deposits mismatch {total_deposits} vs sum {initial_principal + sum(additional_deposits.values())}\"\n\n# Check final_value equals stepwise compounding\n# We check by re-computing final_value by applying growth factors year by year\nbalance_check = initial_principal\nfor year in range(2020, 2025):\n    if year in additional_deposits:\n        balance_check += additional_deposits[year]\n    nominal_rate, periods = year_data[year]\n    if periods is None:\n        gf = continuous_factor(nominal_rate)\n    else:\n        gf = compound_factor(nominal_rate, periods)\n    balance_check *= gf\nassert abs(balance_check - final_value) < 1e-2, f\"Final value mismatch {balance_check} vs {final_value}\"\n\n# Check total_interest equals final_value - total_deposits\nassert abs(total_interest - (final_value - total_deposits)) < 1e-2, f\"Interest mismatch {total_interest} vs {final_value - total_deposits}\"\n\nRESULT = {\n    'final_value': round(final_value, 2),\n    'total_interest': round(total_interest, 2),\n    'equivalent_rate_pct': round(equivalent_rate * 100, 3)\n}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "final_value": 391962.57,
+          "total_interest": 91962.57,
+          "equivalent_rate_pct": 6.784
+        },
+        "duration_s": 0.001,
+        "exc_type": null,
+        "line": null,
+        "asserts": 3
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "final_value": 391962.57,
+    "total_interest": 91962.57,
+    "equivalent_rate_pct": 6.784
+  },
+  "final_answer": "The final value of the investment on 31 Dec 2024 is Rs 391,962.57. The total interest earned over the period is Rs 91,962.57. The equivalent single annual effective interest rate that would yield the same final amount with the three deposits compounded annually is 6.784%.",
+  "usage": {
+    "prompt_tokens": 1149,
+    "completion_tokens": 1459,
+    "calls": 2,
+    "cost_usd": 0.002794,
+    "total_tokens": 2608
+  },
+  "duration_s": 9.48,
+  "path": "runs/bench/20261004-235154_compound_varying.json"
+}

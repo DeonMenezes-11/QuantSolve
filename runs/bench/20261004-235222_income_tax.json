@@ -1,0 +1,44 @@
+{
+  "run_id": "20261004-235222_income_tax",
+  "task": "Compute Indian income tax under the new tax regime for FY 2024-25 for three salaried people with gross salaries A = Rs 7,20,000, B = Rs 7,90,000 and C = Rs 18,50,000. Use exactly these rules: (1) taxable income = gross salary - standard deduction of Rs 75,000. (2) Slab rates on taxable income: up to 3,00,000: 0%; 3,00,001-7,00,000: 5%; 7,00,001-10,00,000: 10%; 10,00,001-12,00,000: 15%; 12,00,001-15,00,000: 20%; above 15,00,000: 30%. (3) Rebate u/s 87A: if taxable income <= 7,00,000 the tax is zero. (4) Marginal relief: if taxable income exceeds 7,00,000, the tax before cess cannot exceed (taxable income - 7,00,000). (5) Add 4% health and education cess on the tax after rebate/relief. (6) No surcharge and no other deductions. Report each person's total tax including cess, rounded to the nearest rupee, and C's effective tax rate as a percentage of gross salary (2 decimals). RESULT keys: tax_a, tax_b, tax_c, effective_rate_c_pct.",
+  "task_id": "income_tax",
+  "model": "gpt-4.1-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:52:15",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "I will first compute taxable income by subtracting the standard deduction from gross salary. Then, I will calculate the tax before rebate and relief using the slab rates. Next, apply the rebate for taxable income <= 700000, setting tax to zero. For taxable income > 700000, apply marginal relief so that tax before cess does not exceed taxable_income - 700000. Finally, add 4% cess on the tax after rebate/relief. I will verify correctness by asserting that tax after rebate/relief is never negative and that marginal relief is correctly applied by comparing tax before and after relief. Also, check that effective tax rate for C is consistent with computed tax and gross salary.",
+      "code": "def compute_tax(gross_salary):\n    standard_deduction = 75000\n    taxable_income = gross_salary - standard_deduction\n    # Slabs and rates\n    slabs = [300000, 700000, 1000000, 1200000, 1500000]\n    rates = [0.0, 0.05, 0.10, 0.15, 0.20, 0.30]\n\n    # Compute tax before rebate and relief\n    tax = 0.0\n    prev_limit = 0\n    for i, limit in enumerate(slabs + [float('inf')]):\n        if taxable_income <= prev_limit:\n            break\n        slab_income = min(taxable_income, limit) - prev_limit\n        tax += slab_income * rates[i]\n        prev_limit = limit\n\n    # Apply rebate u/s 87A\n    if taxable_income <= 700000:\n        tax_after_rebate = 0.0\n    else:\n        tax_after_rebate = tax\n\n    # Apply marginal relief if taxable_income > 700000\n    if taxable_income > 700000:\n        max_tax = taxable_income - 700000\n        if tax_after_rebate > max_tax:\n            tax_after_relief = max_tax\n        else:\n            tax_after_relief = tax_after_rebate\n    else:\n        tax_after_relief = tax_after_rebate\n\n    # Add 4% cess\n    total_tax = tax_after_relief * 1.04\n\n    return taxable_income, tax, tax_after_rebate, tax_after_relief, total_tax\n\n# Given salaries\nA = 720000\nB = 790000\nC = 1850000\n\n# Compute taxes\nres_a = compute_tax(A)\nres_b = compute_tax(B)\nres_c = compute_tax(C)\n\n# Extract total tax rounded\ntax_a = round(res_a[-1])\ntax_b = round(res_b[-1])\ntax_c = round(res_c[-1])\n\n# Effective tax rate for C as percentage of gross salary\neffective_rate_c_pct = round((tax_c / C) * 100, 2)\n\n# Assertions\n# 1) tax after rebate/relief <= tax before rebate\nassert res_a[3] <= res_a[1] + 1e-6, f\"Tax after relief {res_a[3]} > tax before rebate {res_a[1]}\"\nassert res_b[3] <= res_b[1] + 1e-6, f\"Tax after relief {res_b[3]} > tax before rebate {res_b[1]}\"\nassert res_c[3] <= res_c[1] + 1e-6, f\"Tax after relief {res_c[3]} > tax before rebate {res_c[1]}\"\n\n# 2) For taxable_income <= 700000, tax after rebate is zero\nassert (res_a[0] <= 700000 and abs(res_a[2]) < 1e-6) or (res_a[0] > 700000), f\"Rebate failed for A\"\n\n# 3) Marginal relief check for B and C\nif res_b[0] > 700000:\n    max_tax_b = res_b[0] - 700000\n    assert abs(res_b[3] - min(res_b[2], max_tax_b)) < 1e-6, f\"Marginal relief failed for B\"\nif res_c[0] > 700000:\n    max_tax_c = res_c[0] - 700000\n    assert abs(res_c[3] - min(res_c[2], max_tax_c)) < 1e-6, f\"Marginal relief failed for C\"\n\n# 4) Effective tax rate consistency for C\nassert abs(effective_rate_c_pct - (res_c[-1]/C)*100) < 1e-6, f\"Effective rate mismatch for C\"\n\nRESULT = {\n    \"tax_a\": tax_a,\n    \"tax_b\": tax_b,\n    \"tax_c\": tax_c,\n    \"effective_rate_c_pct\": effective_rate_c_pct\n}\n",
+      "observation": {
+        "ok": false,
+        "kind": "assertion",
+        "message": "AssertionError: Effective rate mismatch for C",
+        "traceback": "Traceback (solution frames only):\n  line 75, in <module>\n    assert abs(effective_rate_c_pct - (res_c[-1]/C)*100) < 1e-6, f\"Effective rate mismatch for C\"\nAssertionError: Effective rate mismatch for C",
+        "stdout": "",
+        "result": null,
+        "duration_s": 0.001,
+        "exc_type": "AssertionError",
+        "line": 75,
+        "asserts": 7
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": false,
+  "result": null,
+  "final_answer": "No verified answer after 1 attempt(s). Last failure (assertion): AssertionError: Effective rate mismatch for C",
+  "usage": {
+    "prompt_tokens": 886,
+    "completion_tokens": 1081,
+    "calls": 1,
+    "cost_usd": 0.002084,
+    "total_tokens": 1967
+  },
+  "duration_s": 7.02,
+  "path": "runs/bench/20261004-235222_income_tax.json"
+}

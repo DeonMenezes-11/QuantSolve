@@ -1,0 +1,54 @@
+{
+  "run_id": "20261004-231459_income_tax",
+  "task": "Compute Indian income tax under the new tax regime for FY 2024-25 for three salaried people with gross salaries A = Rs 7,20,000, B = Rs 7,90,000 and C = Rs 18,50,000. Use exactly these rules: (1) taxable income = gross salary - standard deduction of Rs 75,000. (2) Slab rates on taxable income: up to 3,00,000: 0%; 3,00,001-7,00,000: 5%; 7,00,001-10,00,000: 10%; 10,00,001-12,00,000: 15%; 12,00,001-15,00,000: 20%; above 15,00,000: 30%. (3) Rebate u/s 87A: if taxable income <= 7,00,000 the tax is zero. (4) Marginal relief: if taxable income exceeds 7,00,000, the tax before cess cannot exceed (taxable income - 7,00,000). (5) Add 4% health and education cess on the tax after rebate/relief. (6) No surcharge and no other deductions. Report each person's total tax including cess, rounded to the nearest rupee, and C's effective tax rate as a percentage of gross salary (2 decimals). RESULT keys: tax_a, tax_b, tax_c, effective_rate_c_pct.",
+  "task_id": "income_tax",
+  "model": "gpt-4o-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:14:51",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "To compute the income tax for each individual, I will first calculate the taxable income by subtracting the standard deduction from the gross salary. Then, I will apply the tax slab rates to determine the tax before any rebates or relief. I will check if the taxable income qualifies for the rebate under section 87A and apply marginal relief if applicable. Finally, I will add the 4% health and education cess to the tax. I will assert that the total tax calculated matches the expected tax based on the slabs and that the effective tax rate for C is correctly computed.",
+      "code": "gross_salaries = [720000, 790000, 1850000]\nstandard_deduction = 75000\nrebate_limit = 700000\nmarginal_relief_limit = 700000\ncess_rate = 0.04\n\ndef calculate_tax(gross_salary):\n    taxable_income = gross_salary - standard_deduction\n    if taxable_income <= 0:\n        return 0\n    tax = 0\n    if taxable_income > 300000:\n        tax += min(taxable_income - 300000, 400000) * 0.05\n    if taxable_income > 700000:\n        tax += min(taxable_income - 700000, 300000) * 0.10\n    if taxable_income > 1000000:\n        tax += min(taxable_income - 1000000, 200000) * 0.15\n    if taxable_income > 1200000:\n        tax += min(taxable_income - 1200000, 300000) * 0.20\n    if taxable_income > 1500000:\n        tax += (taxable_income - 1500000) * 0.30\n    if taxable_income <= rebate_limit:\n        tax = 0\n    else:\n        marginal_relief = max(0, tax - (taxable_income - marginal_relief_limit))\n        tax -= marginal_relief\n    cess = tax * cess_rate\n    total_tax = tax + cess\n    return round(total_tax)\n\ntax_a = calculate_tax(gross_salaries[0])\ntax_b = calculate_tax(gross_salaries[1])\ntax_c = calculate_tax(gross_salaries[2])\neffective_rate_c_pct = round((tax_c / gross_salaries[2]) * 100, 2)\n\nassert tax_a == calculate_tax(720000), f'Tax A mismatch: {tax_a} != {calculate_tax(720000)}'\nassert tax_b == calculate_tax(790000), f'Tax B mismatch: {tax_b} != {calculate_tax(790000)}'\nassert effective_rate_c_pct == round((tax_c / gross_salaries[2]) * 100, 2), f'Effective rate C mismatch: {effective_rate_c_pct} != {round((tax_c / gross_salaries[2]) * 100, 2)}'\n\nRESULT = {'tax_a': tax_a, 'tax_b': tax_b, 'tax_c': tax_c, 'effective_rate_c_pct': effective_rate_c_pct}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "tax_a": 0,
+          "tax_b": 15600,
+          "tax_c": 231400,
+          "effective_rate_c_pct": 12.51
+        },
+        "duration_s": 0.0,
+        "exc_type": null,
+        "line": null,
+        "asserts": 3
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "tax_a": 0,
+    "tax_b": 15600,
+    "tax_c": 231400,
+    "effective_rate_c_pct": 12.51
+  },
+  "final_answer": "Person A has a total tax of Rs 0, while Person B owes Rs 15,600 in taxes. Person C's total tax amounts to Rs 231,400. Additionally, Person C's effective tax rate is 12.51% of their gross salary.",
+  "usage": {
+    "prompt_tokens": 1298,
+    "completion_tokens": 750,
+    "calls": 2,
+    "cost_usd": 0.000645,
+    "total_tokens": 2048
+  },
+  "duration_s": 8.13,
+  "path": "runs/archive_v1/20261004-231459_income_tax.json"
+}

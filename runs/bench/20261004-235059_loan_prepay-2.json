@@ -1,0 +1,54 @@
+{
+  "run_id": "20261004-235059_loan_prepay-2",
+  "task": "A home loan of Rs 50,00,000 is taken at 8.5% annual interest, compounded monthly (monthly rate r = 8.5%/12), for 20 years (240 monthly EMIs). The EMI is fixed with the standard formula EMI = P*r*(1+r)^n / ((1+r)^n - 1) and is not rounded during the calculation. Each month, interest = outstanding balance * r and the rest of the EMI repays principal. At the end of every 12th month (right after that month's EMI) the borrower also prepays Rs 1,00,000 (or the remaining balance, if smaller), which reduces the outstanding principal; the EMI amount stays the same. When the balance plus that month's interest is less than one EMI, the final payment is just that amount and the loan closes. Compute: emi (Rs, 2 decimals); months_with_prepayment (number of monthly payments until the loan closes, counting the final partial payment); months_saved (240 minus that); interest_saved (total interest without prepayments minus total interest with prepayments, Rs, 2 decimals). RESULT keys: emi, months_with_prepayment, months_saved, interest_saved.",
+  "task_id": "loan_prepay",
+  "model": "gpt-4.1-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:50:52",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "I will first compute the fixed EMI using the given formula with the monthly interest rate and total months. Then, I simulate the loan month-by-month with prepayments of Rs 100,000 every 12 months after the EMI payment, tracking the outstanding principal and interest paid. I also compute the total interest without prepayments using the closed-form formula (EMI * n - principal). The months_with_prepayment is the count until the loan closes with prepayments, and months_saved is 240 minus that. Interest saved is the difference between total interest without and with prepayments. I will assert that the sum of principal repaid equals the loan amount in both cases and that total interest from the month-by-month loop matches the closed form for the no-prepayment scenario within a tolerance.",
+      "code": "import math\n\nP = 5000000.0  # principal\nannual_rate = 8.5 / 100\nr = annual_rate / 12  # monthly rate\nn = 240  # months\n\n# EMI formula\nemi = P * r * (1 + r) ** n / ((1 + r) ** n - 1)\n\n# Total interest without prepayment\ntotal_interest_no_prepayment = emi * n - P\n\n# Simulate loan without prepayment to verify total interest\nbalance = P\ntotal_interest_check = 0.0\nfor month in range(1, n + 1):\n    interest = balance * r\n    principal_repaid = emi - interest\n    balance -= principal_repaid\n    total_interest_check += interest\n\nassert abs(total_interest_check - total_interest_no_prepayment) < 1e-2, f\"Interest mismatch no prepayment: {total_interest_check} vs {total_interest_no_prepayment}\"\nassert abs(balance) < 1e-2, f\"Balance not zero after no prepayment schedule: {balance}\"\n\n# Simulate loan with prepayment\nbalance = P\ntotal_interest_with_prepayment = 0.0\nmonth = 0\nwhile balance > 1e-5:\n    month += 1\n    interest = balance * r\n    if balance + interest <= emi:\n        # Final payment\n        final_payment = balance + interest\n        total_interest_with_prepayment += interest\n        balance = 0.0\n        break\n    else:\n        principal_repaid = emi - interest\n        balance -= principal_repaid\n        total_interest_with_prepayment += interest\n    # Prepayment every 12 months after EMI\n    if month % 12 == 0 and balance > 0:\n        prepayment = min(100000, balance)\n        balance -= prepayment\n\nmonths_with_prepayment = month\nmonths_saved = n - months_with_prepayment\ninterest_saved = total_interest_no_prepayment - total_interest_with_prepayment\n\n# Check that principal repaid equals loan amount\n# For with prepayment, sum principal repaid = P\nprincipal_repaid_with_prepayment = P - balance\nassert abs(principal_repaid_with_prepayment - P) < 1e-2, f\"Principal repaid with prepayment mismatch: {principal_repaid_with_prepayment} vs {P}\"\n\nRESULT = {\n    'emi': round(emi, 2),\n    'months_with_prepayment': months_with_prepayment,\n    'months_saved': months_saved,\n    'interest_saved': round(interest_saved, 2),\n}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "emi": 43391.16,
+          "months_with_prepayment": 168,
+          "months_saved": 72,
+          "interest_saved": 1855389.33
+        },
+        "duration_s": 0.0,
+        "exc_type": null,
+        "line": null,
+        "asserts": 3
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "emi": 43391.16,
+    "months_with_prepayment": 168,
+    "months_saved": 72,
+    "interest_saved": 1855389.33
+  },
+  "final_answer": "The fixed monthly EMI for the loan is Rs 43,391.16. With the annual prepayment of Rs 1,00,000 at the end of every 12th month, the loan is fully repaid in 168 months. This means the borrower saves 72 months compared to the original 240-month term. Additionally, the total interest saved due to these prepayments is Rs 18,55,389.33.",
+  "usage": {
+    "prompt_tokens": 1192,
+    "completion_tokens": 854,
+    "calls": 2,
+    "cost_usd": 0.001843,
+    "total_tokens": 2046
+  },
+  "duration_s": 7.22,
+  "path": "runs/bench/20261004-235059_loan_prepay-2.json"
+}

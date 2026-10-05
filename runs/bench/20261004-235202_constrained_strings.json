@@ -1,0 +1,52 @@
+{
+  "run_id": "20261004-235202_constrained_strings",
+  "task": "Consider 8-character strings over an alphabet of 26 uppercase letters and 10 digits (36 symbols) in which no two adjacent characters are identical. Find: (a) count_mixed, the number of such strings that contain at least one letter and at least one digit; (b) count_three_digits, the number of such strings that contain exactly 3 digits; (c) prob_three_digits, the probability that a uniformly random 8-character string over the 36 symbols (with no restriction) has exactly 3 digits AND no two adjacent identical characters (6 decimals). RESULT keys: count_mixed, count_three_digits, prob_three_digits.",
+  "task_id": "constrained_strings",
+  "model": "gpt-4.1-mini",
+  "inject": null,
+  "max_attempts": 5,
+  "created_at": "2026-10-04T23:51:54",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "We count total 8-length strings with no two identical adjacent chars using 36 * 35^7. Then count all-letter and all-digit strings similarly and use inclusion-exclusion to get count_mixed. For count_three_digits, we choose 3 positions for digits, count digit strings with no adjacent repeats in those positions, and letter strings with no adjacent repeats in the other positions, ensuring no adjacency conflicts at boundaries. We sum over all digit position sets. For prob_three_digits, we divide count_three_digits by total no-adjacent-identical strings. We assert total = all-letter + all-digit + count_mixed and also check sum of count_three_digits over digit counts matches total no-adjacent-identical strings with digits count from 0 to 8.",
+      "code": "import math\nfrom itertools import combinations\n\n# Constants\nlength = 8\nnum_letters = 26\nnum_digits = 10\nnum_symbols = num_letters + num_digits\n\n# Helper: count strings of length n over k symbols with no two identical adjacent\n# Formula: k * (k-1)^(n-1)\ndef count_no_adjacent(n, k):\n    if n == 0:\n        return 1\n    return k * (k - 1) ** (n - 1)\n\n# Total no-adjacent-identical strings over 36 symbols\ncount_total = count_no_adjacent(length, num_symbols)\n\n# All letters no-adjacent\ncount_all_letters = count_no_adjacent(length, num_letters)\n\n# All digits no-adjacent\ncount_all_digits = count_no_adjacent(length, num_digits)\n\n# (a) count_mixed = total - all_letters - all_digits\ncount_mixed = count_total - count_all_letters - count_all_digits\n\n# (b) count_three_digits: number of no-adjacent-identical strings with exactly 3 digits\n# Approach:\n# For each choice of 3 positions for digits (C(8,3)), count digit strings with no adjacents,\n# count letter strings with no adjacents in remaining 5 positions,\n# but must ensure no adjacency conflicts at boundaries between digit and letter blocks.\n\n# To handle adjacency at boundaries, we consider the sequence of positions and split into runs of digits and letters.\n# Each run is a contiguous block of digits or letters.\n# For each run, count no-adjacent strings over the appropriate alphabet.\n# Then multiply counts of runs.\n\n# We iterate over all digit position sets of size 3\ncount_three_digits = 0\n\n# Precompute powers for efficiency\npow_digit = [0] * (length + 1)\npow_letter = [0] * (length + 1)\nfor i in range(length + 1):\n    pow_digit[i] = count_no_adjacent(i, num_digits)\n    pow_letter[i] = count_no_adjacent(i, num_letters)\n\n# Function to get runs of consecutive positions of same type (digit or letter)\ndef get_runs(pos_set):\n    # pos_set: set of digit positions\n    runs = []  # list of (type, length)\n    # type: 'D' or 'L'\n    # We scan positions 0..7\n    current_type = None\n    current_len = 0\n    for i in range(length):\n        t = 'D' if i in pos_set else 'L'\n        if t == current_type:\n            current_len += 1\n        else:\n            if current_type is not None:\n                runs.append((current_type, current_len))\n            current_type = t\n            current_len = 1\n    if current_type is not None:\n        runs.append((current_type, current_len))\n    return runs\n\n# For each digit position set\nfor digit_positions in combinations(range(length), 3):\n    digit_pos_set = set(digit_positions)\n    runs = get_runs(digit_pos_set)\n    # Count ways = product over runs of count_no_adjacent(run_length, alphabet_size)\n    ways = 1\n    for (t, run_len) in runs:\n        if t == 'D':\n            ways *= pow_digit[run_len]\n        else:\n            ways *= pow_letter[run_len]\n    count_three_digits += ways\n\n# (c) prob_three_digits = count_three_digits / count_total\nprob_three_digits = count_three_digits / count_total\n\n# Round probability to 6 decimals\nprob_three_digits_rounded = round(prob_three_digits, 6)\n\n# Assertions\n# 1) total = all_letters + all_digits + count_mixed\nassert abs(count_total - (count_all_letters + count_all_digits + count_mixed)) < 1e-9, f\"Total mismatch: {count_total} vs sum parts {count_all_letters + count_all_digits + count_mixed}\"\n\n# 2) sum over k=0..8 of count_exact_k_digits = count_total\n# We compute count_exact_k_digits for k=0 and k=8 to check extremes\n# k=0 means all letters no-adjacent\n# k=8 means all digits no-adjacent\n# sum of these two plus count_three_digits plus others should be <= count_total\n# We check that count_all_letters and count_all_digits are consistent with count_no_adjacent\nassert count_all_letters == count_no_adjacent(length, num_letters), f\"All letters count mismatch\"\nassert count_all_digits == count_no_adjacent(length, num_digits), f\"All digits count mismatch\"\n\nRESULT = {\n    'count_mixed': count_mixed,\n    'count_three_digits': count_three_digits,\n    'prob_three_digits': prob_three_digits_rounded\n}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "count_mixed": 2157475451560,
+          "count_three_digits": 559462475000,
+          "prob_three_digits": 0.241542
+        },
+        "duration_s": 0.0,
+        "exc_type": null,
+        "line": null,
+        "asserts": 3
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "count_mixed": 2157475451560,
+    "count_three_digits": 559462475000,
+    "prob_three_digits": 0.241542
+  },
+  "final_answer": "The number of 8-character strings with no two identical adjacent characters that contain at least one letter and at least one digit is 2,157,475,451,560. The number of such strings that contain exactly 3 digits is 559,462,475,000. The probability that a uniformly random 8-character string over the 36 symbols has exactly 3 digits and no two adjacent identical characters is approximately 0.241542.",
+  "usage": {
+    "prompt_tokens": 948,
+    "completion_tokens": 1349,
+    "calls": 2,
+    "cost_usd": 0.002538,
+    "total_tokens": 2297
+  },
+  "duration_s": 8.58,
+  "path": "runs/bench/20261004-235202_constrained_strings.json"
+}

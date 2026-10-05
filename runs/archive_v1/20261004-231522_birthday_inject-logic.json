@@ -1,0 +1,54 @@
+{
+  "run_id": "20261004-231522_birthday_inject-logic",
+  "task": "Assume 365 equally likely birthdays (ignore leap years) and independent people. (a) Find the smallest group size n_pair for which the probability that at least two people share a birthday exceeds 0.5, and that probability p_pair (6 decimals). (b) Find the smallest group size n_triple for which the probability that at least three people share the same birthday exceeds 0.5, and that probability p_triple (6 decimals). Compute the probabilities exactly (combinatorics or dynamic programming, not simulation). RESULT keys: n_pair, p_pair, n_triple, p_triple.",
+  "task_id": "birthday",
+  "model": "gpt-4o-mini",
+  "inject": "logic",
+  "max_attempts": 5,
+  "created_at": "2026-10-04T23:15:15",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "To solve for n_pair, we will calculate the probability that at least two people share a birthday using the complement probability that all birthdays are unique. For n_triple, we will use a similar approach but will calculate the probability that at least three people share the same birthday. I will assert that the computed probabilities match the expected values derived from the complementary counting methods.",
+      "code": "import math\n\ndef probability_at_least_two(n):\n    if n > 365:\n        return 1.0\n    prob_unique = 1.0\n    for i in range(n - 1):\n        prob_unique *= (365 - i) / 365\n    return 1 - prob_unique\n\ndef probability_at_least_three(n):\n    if n > 365:\n        return 1.0\n    prob_unique = 1.0\n    prob_exactly_two = 0.0\n    for i in range(n):\n        prob_unique *= (365 - i) / 365\n    for k in range(1, n + 1):\n        if k < 3:\n            continue\n        prob_exactly_two += math.comb(n, 2) * math.comb(363, k - 2) / 365 ** k\n    return 1 - prob_unique - prob_exactly_two\nn_pair = 0\np_pair = 0.0\nwhile p_pair <= 0.5:\n    n_pair += 1\n    p_pair = probability_at_least_two(n_pair)\nn_triple = 0\np_triple = 0.0\nwhile p_triple <= 0.5:\n    n_triple += 1\n    p_triple = probability_at_least_three(n_triple)\nassert abs(probability_at_least_two(n_pair) - p_pair) < 1e-06, f'Mismatch in pair probability: {probability_at_least_two(n_pair)} vs {p_pair}'\nassert abs(probability_at_least_three(n_triple) - p_triple) < 1e-06, f'Mismatch in triple probability: {probability_at_least_three(n_triple)} vs {p_triple}'\nRESULT = {'n_pair': n_pair, 'p_pair': round(p_pair, 6), 'n_triple': n_triple, 'p_triple': round(p_triple, 6)}\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "n_pair": 24,
+          "p_pair": 0.507297,
+          "n_triple": 23,
+          "p_triple": 0.504069
+        },
+        "duration_s": 0.0,
+        "exc_type": null,
+        "line": null,
+        "asserts": 2
+      },
+      "llm_code": "import math\n\n# Function to calculate the probability of at least two people sharing a birthday\n# using the complement probability that all birthdays are unique\ndef probability_at_least_two(n):\n    if n > 365:\n        return 1.0\n    prob_unique = 1.0\n    for i in range(n):\n        prob_unique *= (365 - i) / 365\n    return 1 - prob_unique\n\n# Function to calculate the probability of at least three people sharing a birthday\n# using the complement probability that all birthdays are unique or exactly two share\ndef probability_at_least_three(n):\n    if n > 365:\n        return 1.0\n    prob_unique = 1.0\n    prob_exactly_two = 0.0\n    for i in range(n):\n        prob_unique *= (365 - i) / 365\n    \n    # Calculate the probability of exactly two sharing a birthday\n    for k in range(1, n + 1):\n        if k < 3:\n            continue\n        prob_exactly_two += (math.comb(n, 2) * math.comb(363, k - 2)) / (365 ** k)\n    \n    return 1 - prob_unique - prob_exactly_two\n\n# Finding the smallest group size for at least two sharing a birthday\nn_pair = 0\np_pair = 0.0\nwhile p_pair <= 0.5:\n    n_pair += 1\n    p_pair = probability_at_least_two(n_pair)\n\n# Finding the smallest group size for at least three sharing a birthday\nn_triple = 0\np_triple = 0.0\nwhile p_triple <= 0.5:\n    n_triple += 1\n    p_triple = probability_at_least_three(n_triple)\n\n# Assertions to ensure correctness\nassert abs(probability_at_least_two(n_pair) - p_pair) < 1e-6, f\"Mismatch in pair probability: {probability_at_least_two(n_pair)} vs {p_pair}\"\nassert abs(probability_at_least_three(n_triple) - p_triple) < 1e-6, f\"Mismatch in triple probability: {probability_at_least_three(n_triple)} vs {p_triple}\"\n\nRESULT = {\n    'n_pair': n_pair,\n    'p_pair': round(p_pair, 6),\n    'n_triple': n_triple,\n    'p_triple': round(p_triple, 6)\n}\n",
+      "injected": "logic: off-by-one in range() on line 7: `range(n)` -> `range(n - 1)`",
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "n_pair": 24,
+    "p_pair": 0.507297,
+    "n_triple": 23,
+    "p_triple": 0.504069
+  },
+  "final_answer": "The smallest group size for which the probability that at least two people share a birthday exceeds 0.5 is 24, with a probability of approximately 0.507297. For at least three people sharing the same birthday, the smallest group size is 23, with a probability of about 0.504069.",
+  "usage": {
+    "prompt_tokens": 924,
+    "completion_tokens": 720,
+    "calls": 2,
+    "cost_usd": 0.000571,
+    "total_tokens": 1644
+  },
+  "duration_s": 7.3,
+  "path": "runs/archive_v1/20261004-231522_birthday_inject-logic.json"
+}

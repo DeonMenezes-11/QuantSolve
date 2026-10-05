@@ -1,0 +1,54 @@
+{
+  "run_id": "20261004-232119_income_tax_inject-logic",
+  "task": "Compute Indian income tax under the new tax regime for FY 2024-25 for three salaried people with gross salaries A = Rs 7,20,000, B = Rs 7,90,000 and C = Rs 18,50,000. Use exactly these rules: (1) taxable income = gross salary - standard deduction of Rs 75,000. (2) Slab rates on taxable income: up to 3,00,000: 0%; 3,00,001-7,00,000: 5%; 7,00,001-10,00,000: 10%; 10,00,001-12,00,000: 15%; 12,00,001-15,00,000: 20%; above 15,00,000: 30%. (3) Rebate u/s 87A: if taxable income <= 7,00,000 the tax is zero. (4) Marginal relief: if taxable income exceeds 7,00,000, the tax before cess cannot exceed (taxable income - 7,00,000). (5) Add 4% health and education cess on the tax after rebate/relief. (6) No surcharge and no other deductions. Report each person's total tax including cess, rounded to the nearest rupee, and C's effective tax rate as a percentage of gross salary (2 decimals). RESULT keys: tax_a, tax_b, tax_c, effective_rate_c_pct.",
+  "task_id": "income_tax",
+  "model": "gpt-4o-mini",
+  "inject": "logic",
+  "max_attempts": 5,
+  "created_at": "2026-10-04T23:21:12",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "I will calculate the taxable income for each individual by subtracting the standard deduction from their gross salary. Then, I will apply the tax slab rates to determine the tax owed, considering the rebate and marginal relief rules. Finally, I will compute the total tax including the health and education cess and calculate C's effective tax rate as a percentage of their gross salary. I will assert that the total tax computed matches the expected values based on the rules and that the effective tax rate is correctly derived.",
+      "code": "gross_salaries = [720000, 790000, 1850000]\nstandard_deduction = 75000\nrebate_limit = 700000\nslabs = [(300000, 0.0), (700000, 0.05), (1000000, 0.1), (1200000, 0.15), (1500000, 0.2), (float('inf'), 0.3)]\n\ndef calculate_tax(gross_salary):\n    taxable_income = gross_salary - standard_deduction\n    if taxable_income <= rebate_limit:\n        return 0\n    tax = 0\n    previous_limit = 0\n    for limit, rate in slabs:\n        if taxable_income > previous_limit:\n            taxable_amount = min(taxable_income, limit) + previous_limit\n            tax += taxable_amount * rate\n            previous_limit = limit\n    if taxable_income > rebate_limit:\n        marginal_relief = taxable_income - rebate_limit\n        tax = min(tax, marginal_relief)\n    cess = tax * 0.04\n    total_tax = tax + cess\n    return round(total_tax)\ntaxes = [calculate_tax(salary) for salary in gross_salaries]\neffective_rate_c = taxes[2] / gross_salaries[2] * 100\nRESULT = {'tax_a': taxes[0], 'tax_b': taxes[1], 'tax_c': taxes[2], 'effective_rate_c_pct': round(effective_rate_c, 2)}\nassert taxes[0] == calculate_tax(720000), f'Tax A mismatch: {taxes[0]} != {calculate_tax(720000)}'\nassert taxes[1] == calculate_tax(790000), f'Tax B mismatch: {taxes[1]} != {calculate_tax(790000)}'\nassert taxes[2] == calculate_tax(1850000), f'Tax C mismatch: {taxes[2]} != {calculate_tax(1850000)}'\nassert 0 <= RESULT['effective_rate_c_pct'] <= 100, f\"Effective tax rate C out of bounds: {RESULT['effective_rate_c_pct']} not in [0, 100]\"\n",
+      "observation": {
+        "ok": true,
+        "kind": "ok",
+        "message": "",
+        "traceback": "",
+        "stdout": "",
+        "result": {
+          "tax_a": 0,
+          "tax_b": 15600,
+          "tax_c": 1118000,
+          "effective_rate_c_pct": 60.43
+        },
+        "duration_s": 0.0,
+        "exc_type": null,
+        "line": null,
+        "asserts": 4
+      },
+      "llm_code": "gross_salaries = [720000, 790000, 1850000]\nstandard_deduction = 75000\nrebate_limit = 700000\nslabs = [(300000, 0.0), (700000, 0.05), (1000000, 0.10), (1200000, 0.15), (1500000, 0.20), (float('inf'), 0.30)]\n\ndef calculate_tax(gross_salary):\n    taxable_income = gross_salary - standard_deduction\n    if taxable_income <= rebate_limit:\n        return 0\n    tax = 0\n    previous_limit = 0\n    for limit, rate in slabs:\n        if taxable_income > previous_limit:\n            taxable_amount = min(taxable_income, limit) - previous_limit\n            tax += taxable_amount * rate\n            previous_limit = limit\n    if taxable_income > rebate_limit:\n        marginal_relief = taxable_income - rebate_limit\n        tax = min(tax, marginal_relief)\n    cess = tax * 0.04\n    total_tax = tax + cess\n    return round(total_tax)\n\ntaxes = [calculate_tax(salary) for salary in gross_salaries]\neffective_rate_c = (taxes[2] / gross_salaries[2]) * 100\n\nRESULT = {\n    'tax_a': taxes[0],\n    'tax_b': taxes[1],\n    'tax_c': taxes[2],\n    'effective_rate_c_pct': round(effective_rate_c, 2)\n}\n\nassert taxes[0] == calculate_tax(720000), f'Tax A mismatch: {taxes[0]} != {calculate_tax(720000)}'\nassert taxes[1] == calculate_tax(790000), f'Tax B mismatch: {taxes[1]} != {calculate_tax(790000)}'\nassert taxes[2] == calculate_tax(1850000), f'Tax C mismatch: {taxes[2]} != {calculate_tax(1850000)}'\nassert 0 <= RESULT['effective_rate_c_pct'] <= 100, f'Effective tax rate C out of bounds: {RESULT['effective_rate_c_pct']} not in [0, 100]'\n",
+      "injected": "logic: flipped +/- inside a loop on line 14: `min(taxable_income, limit) - previous_limit` -> `min(taxable_income, limit) + previous_limit`",
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": true,
+  "result": {
+    "tax_a": 0,
+    "tax_b": 15600,
+    "tax_c": 1118000,
+    "effective_rate_c_pct": 60.43
+  },
+  "final_answer": "Person A has a total tax of Rs 0, while Person B owes Rs 15,600 in taxes. Person C has a total tax liability of Rs 1,118,000. Additionally, Person C's effective tax rate is 60.43% of their gross salary.",
+  "usage": {
+    "prompt_tokens": 1314,
+    "completion_tokens": 671,
+    "calls": 2,
+    "cost_usd": 0.0006,
+    "total_tokens": 1985
+  },
+  "duration_s": 7.04,
+  "path": "runs/archive_gpt-4o-mini/20261004-232119_income_tax_inject-logic.json"
+}

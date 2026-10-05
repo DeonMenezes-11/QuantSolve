@@ -1,0 +1,44 @@
+{
+  "run_id": "20261004-231918_loan_prepay",
+  "task": "A home loan of Rs 50,00,000 is taken at 8.5% annual interest, compounded monthly (monthly rate r = 8.5%/12), for 20 years (240 monthly EMIs). The EMI is fixed with the standard formula EMI = P*r*(1+r)^n / ((1+r)^n - 1) and is not rounded during the calculation. Each month, interest = outstanding balance * r and the rest of the EMI repays principal. At the end of every 12th month (right after that month's EMI) the borrower also prepays Rs 1,00,000 (or the remaining balance, if smaller), which reduces the outstanding principal; the EMI amount stays the same. When the balance plus that month's interest is less than one EMI, the final payment is just that amount and the loan closes. Compute: emi (Rs, 2 decimals); months_with_prepayment (number of monthly payments until the loan closes, counting the final partial payment); months_saved (240 minus that); interest_saved (total interest without prepayments minus total interest with prepayments, Rs, 2 decimals). RESULT keys: emi, months_with_prepayment, months_saved, interest_saved.",
+  "task_id": "loan_prepay",
+  "model": "gpt-4o-mini",
+  "inject": null,
+  "max_attempts": 1,
+  "created_at": "2026-10-04T23:19:10",
+  "attempts": [
+    {
+      "number": 1,
+      "thought": "I will calculate the EMI using the standard formula for fixed-rate loans. Then, I will simulate the loan repayment process month by month, accounting for the prepayment at the end of each year. I will assert that the total interest calculated through the monthly loop matches the difference between total payments and principal, and that the number of months with prepayment is consistent with the loan closure conditions.",
+      "code": "P = 5000000  # Principal amount\nannual_rate = 0.085  # Annual interest rate\nmonthly_rate = annual_rate / 12  # Monthly interest rate\nn = 20 * 12  # Total number of monthly payments\n\n# Calculate EMI using the formula\nemi = P * monthly_rate * (1 + monthly_rate) ** n / ((1 + monthly_rate) ** n - 1)\n\n# Initialize variables for the simulation\noutstanding_balance = P\nmonths_with_prepayment = 0\ninterest_paid = 0.0\n\n# Simulate the loan repayment process\nfor month in range(1, n + 1):\n    interest_for_month = outstanding_balance * monthly_rate\n    principal_repayment = emi - interest_for_month\n    outstanding_balance -= principal_repayment\n    interest_paid += interest_for_month\n    months_with_prepayment += 1\n\n    # Prepayment at the end of every 12th month\n    if month % 12 == 0:\n        prepayment = min(100000, outstanding_balance)\n        outstanding_balance -= prepayment\n\n    # Check if the loan is closed\n    if outstanding_balance < emi:\n        months_with_prepayment += 1  # Count the final payment month\n        break\n\n# Calculate total interest paid\ntotal_interest_without_prepayment = emi * n - P\ninterest_paid_with_prepayment = interest_paid\ninterest_saved = total_interest_without_prepayment - interest_paid_with_prepayment\n\n# Calculate months saved\nmonths_saved = n - months_with_prepayment\n\n# Prepare the result\nRESULT = {\n    'emi': round(emi, 2),\n    'months_with_prepayment': months_with_prepayment,\n    'months_saved': months_saved,\n    'interest_saved': round(interest_saved, 2)\n}\n\n# Assertions to verify correctness\nassert abs(interest_paid_with_prepayment - (emi * months_with_prepayment - P + interest_paid)) < 1e-2, f\"Interest mismatch: {interest_paid_with_prepayment} vs {emi * months_with_prepayment - P + interest_paid}\"\nassert months_with_prepayment <= n, f\"Months with prepayment exceeds total months: {months_with_prepayment} vs {n}\"\n",
+      "observation": {
+        "ok": false,
+        "kind": "assertion",
+        "message": "AssertionError: Interest mismatch: 3558403.906314233 vs 5848119.066584719",
+        "traceback": "Traceback (solution frames only):\n  line 49, in <module>\n    assert abs(interest_paid_with_prepayment - (emi * months_with_prepayment - P + interest_paid)) < 1e-2, f\"Interest mismatch: {interest_paid_with_prepayment} vs {emi * months_with_prepayment - P + interest_paid}\"\nAssertionError: Interest mismatch: 3558403.906314233 vs 5848119.066584719",
+        "stdout": "",
+        "result": null,
+        "duration_s": 0.001,
+        "exc_type": "AssertionError",
+        "line": 49,
+        "asserts": 2
+      },
+      "llm_code": null,
+      "injected": null,
+      "reflection": null,
+      "nudge": null
+    }
+  ],
+  "success": false,
+  "result": null,
+  "final_answer": "No verified answer after 1 attempt(s). Last failure (assertion): AssertionError: Interest mismatch: 3558403.906314233 vs 5848119.066584719",
+  "usage": {
+    "prompt_tokens": 824,
+    "completion_tokens": 591,
+    "calls": 1,
+    "cost_usd": 0.000478,
+    "total_tokens": 1415
+  },
+  "duration_s": 7.82,
+  "path": "runs/archive_gpt-4o-mini/20261004-231918_loan_prepay.json"
+}
